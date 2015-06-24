@@ -310,6 +310,10 @@ class Foursquare(object):
             """https://developer.foursquare.com/docs/users/checkins"""
             return self.GET('{USER_ID}/checkins'.format(USER_ID=USER_ID), params, multi=multi)
 
+        def activities(self, USER_ID=u'self', params={}, multi=False):
+            """https://developer.foursquare.com/docs/users/checkins"""
+            return self.GET('{USER_ID}/activities'.format(USER_ID=USER_ID), params, multi=multi)
+
         def all_checkins(self, USER_ID=u'self'):
             """Utility function: Get every checkin this user has ever made"""
             offset = 0
@@ -387,7 +391,16 @@ class Foursquare(object):
                 files = None
             return self.POST('self/update', data=params, files=files)
 
+    class Updates(_Endpoint):
+        """Venue specific endpoint"""
+        endpoint = 'updates'
 
+        """
+        General
+        """
+        def __call__(self, params={}, multi=False):
+            """https://developer.foursquare.com/docs/venues/venues"""
+            return self.GET('updates/notifications', params, multi=multi)
 
 
     class Venues(_Endpoint):
