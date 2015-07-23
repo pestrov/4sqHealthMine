@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+  <title> Checkins flow in Moscow </title>
   <style>
   #circle circle {
-  fill: none;
-  pointer-events: all;
-}
+    fill: none;
+    pointer-events: all;
+  }
 
-.group path {
-  fill-opacity: .5;
-}
+  .group path {
+    fill-opacity: .5;
+  }
 
-path.chord {
-  stroke: #000;
-  stroke-width: .25px;
-}
+  path.chord {
+    stroke: #000;
+    stroke-width: .25px;
+  }
 
-#circle:hover path.fade {
-  display: none;
-}
+  #circle:hover path.fade {
+    display: none;
+  }
   </style>
 
   <body>
@@ -25,8 +26,8 @@ path.chord {
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script>
 
-    var width = 720,
-        height = 720,
+var width = 720,
+    height = 720,
     outerRadius = Math.min(width, height) / 2 - 10,
     innerRadius = outerRadius - 24;
 
@@ -55,15 +56,15 @@ svg.append("circle")
     .attr("r", outerRadius);
 
 d3.csv("categoryNames.csv", function(categories) {
-  d3.json("gymMatrix.json", function(matrix) {
-
+  d3.json("gymMatrix10.json", function(matrix) {
     // Compute the chord layout.
     layout.matrix(matrix);
+    console.log(matrix);
 
     // Add a group per neighborhood.
     var group = svg.selectAll(".group")
         .data(layout.groups)
-      .enter().append("g")
+        .enter().append("g")
         .attr("class", "group")
         .on("mouseover", mouseover);
 
