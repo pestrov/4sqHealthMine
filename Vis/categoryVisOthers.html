@@ -56,7 +56,7 @@ svg.append("circle")
     .attr("r", outerRadius);
 
 d3.csv("categoryNames.csv", function(categories) {
-  d3.json("gymMatrix10.json", function(matrix) {
+  d3.json("gymMatrix.json", function(matrix) {
     // Compute the chord layout.
     layout.matrix(matrix);
     console.log(matrix);
