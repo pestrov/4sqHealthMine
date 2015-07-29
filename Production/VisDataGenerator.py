@@ -31,6 +31,8 @@ def venueCategoryFromId(venueId, checkinsDF):
         venuesCatDict[venueId] = checkinsDF[checkinsDF.venueId == venueId].iloc[0]['categoryName']
     return venuesCatDict[venueId]
 
+def venueLocationFromId(venueId, checkinsDF):
+    return checkinsDF[checkinsDF.venueId == venueId].iloc[0][['lat','lng']].tolist()
 
 def progress(i, n):
     stdout.write("\r%f%%" % (i*100/float(n)))
@@ -65,7 +67,8 @@ def getSequencesFromCheckins(checkinsDF):
         categoryPairs = []
 
         for venue1, venue2 in pairwise(sortedCheckins['venueId'].tolist()):
-            venuePairs.append((venue1, venue2))
+            venuePairs.append({'ids':(venue1, venue2),
+                            'locations':(venueLocationFromId(venue1, sortedCheckins), venueLocationFromId(venue2, sortedCheckins))})
             categoryPairs.append((venueCategoryFromId(venue1, checkinsDF), venueCategoryFromId(venue2, checkinsDF)))
 
         timeDiffs = []
@@ -99,8 +102,8 @@ def getTopSuccessorsNames(categoryName, categoryPairs, nTop = 10):
 
 def getTopSuccessorsColorsDict(categoryName, categoryPairs, nTop = 10):
     topNames = getTopSuccessorsNames(categoryName, categoryPairs, nTop)
-    topColors = ['#3182bd', '#e6550d', '#fdae6b', '#31a354', '#756bb1', '#636363', '#d6616b', '#7b4173', '#bd9e39', #'#b5cf6b',
-    '#a1d99b']
+    topColors = ['#cd3d08', '#ec8f00', '#6dae29', '#683f92', '#b60275', '#2058a5', '#00a592', '#009d3c', '#378974', #'#b5cf6b',
+    '#ffca00']
     dictOfColors = [dict(zip(['name', 'color'], row)) for row in izip(topNames, topColors)]
     return dictOfColors
 
@@ -156,7 +159,7 @@ def getMatrixForTopSuccessors(categoryName, categoryPairs, nTop = 10, withOthers
 def getDataFor(clusterId, categoryName):
     global rootDir
     rootDir = 'var/www/FlaskHello/FlaskHello/'
-    
+
     checkinsDF = getCheckinsDataFrame()
     global venuesCatDict
     venuesCatDict = getVenuesCatDict()
@@ -169,4 +172,5 @@ def getDataFor(clusterId, categoryName):
     matrix = getMatrixForTopSuccessors(categoryName, categoryPairsGroupedByUser, nTop, 0)
     categoriesDict = getTopSuccessorsColorsDict(categoryName, categoryPairsGroupedByUser, nTop)
     return {'matrix':matrix,
-           'categories':categoriesDict}
+           'categories':categoriesDict,
+           'checkins':venuePairsGroupedByUser}
