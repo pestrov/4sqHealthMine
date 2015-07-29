@@ -55,11 +55,11 @@ var svg = d3.select("body").append("svg")
 svg.append("circle")
     .attr("r", outerRadius);
 
-d3.csv("categoryNames.csv", function(categories) {
-  d3.json("gymMatrix.json", function(matrix) {
+  d3.json("http://128.199.62.25/getTransitionData?clusterId=7&category=Park", function(transitionData) {
     // Compute the chord layout.
+    matrix = transitionData['matrix'];
+    categories = transitionData['categories'];
     layout.matrix(matrix);
-    console.log(matrix);
 
     // Add a group per neighborhood.
     var group = svg.selectAll(".group")
@@ -117,6 +117,5 @@ d3.csv("categoryNames.csv", function(categories) {
       });
     }
   });
-});
 
 </script>
