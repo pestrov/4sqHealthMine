@@ -178,15 +178,22 @@ function addMap(mapWidth, mapHeigth) {
           .enter().append("path")
           .attr("class", "region")
           .attr("d", path);
+
+          linesGroup = svg.append("g");
           });
 }
 
 addLines = function (linesData) {
-  linesGroup = svg.append("g");
+
   moscowData = linesData.filter(function (d) {
      return pathInRect(d, regionRect)}
    );
-  var lines = linesGroup.selectAll("pathLine").data(moscowData);
+
+  var idFunction = function(point, index) { return point[0]['ids'][0].concat(point[0]['ids'][1]).concat(index); }
+  var lines = linesGroup.selectAll("line").data(moscowData, idFunction);
+
+    console.log(moscowData.length);
+
     lines
     .enter()
     .append("line")
@@ -223,8 +230,6 @@ function dataPathLength(d) {
 function pathInRect(d, rect) {
   var firstPair = dataLatLon(d, 0);
   var secondPair = dataLatLon(d, 1);
-  console.log(firstPair);
-  console.log(rect);
   if ((rect[0] <= firstPair[0]) && (firstPair[0] <= rect[1]) &&
        (rect[2] <= firstPair[1]) && (firstPair[1] <= rect[3])) {
          if ((rect[0] <= secondPair[0]) && (secondPair[0] <= rect[1]) &&
