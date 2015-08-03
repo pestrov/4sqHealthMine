@@ -79,8 +79,13 @@ svg.append("circle")
     .attr("r", outerRadius);
 
 addMap(width-chordWidth, height-chordHeigth);
+var initialQuery = getQueryParams(document.location.search);
+var serverPath = "http://128.199.62.25/getTransitionData"
+var newQuery = serverPath.concat("?clusterId=").concat(initialQuery.clusterId)
+                .concat("&category=").concat(initialQuery.category)
+                .concat("&debug=").concat(initialQuery.debug);
 
-  d3.json("http://128.199.62.25/getTransitionData?clusterId=7&category=Park", function(transitionData) {
+  d3.json(newQuery , function(transitionData) {
     // Compute the chord layout.
     matrix = transitionData['matrix'];
     categories = transitionData['categories'];
@@ -172,7 +177,8 @@ function addMap(mapWidth, mapHeigth) {
 
 addLines = function (linesData) {
   linesGroup = svg.append("g");
-  linesGroup.selectAll("pathLine").data(linesData)
+  var lines = linesGroup.selectAll("pathLine").data(linesData);
+    lines
     .enter()
     .append("line")
     .style("stroke", "blue")
@@ -186,5 +192,26 @@ addLines = function (linesData) {
     .transition()
     .duration(400)
     .style("opacity", 0.2);
+
+    lines
+    .exit()
+    .transition()
+    .duration(200)
+    .style("opacity", 0)
+    .remove();
+}
+
+function getQueryParams(qs) {
+    qs = qs.split('+').join(' ');
+
+    var params = {},
+        tokens,
+        re = /[?&]?([^=]+)=([^&]*)/g;
+
+    while (tokens = re.exec(qs)) {
+        params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+    }
+
+    return params;
 }
 </script>

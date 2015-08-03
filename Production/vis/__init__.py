@@ -71,6 +71,12 @@ def getTransitionData():
             #print 'keyword is %s length is %i type is %s' % (request.args['keyword'],len(request.args['keyword']),type(request.args['keyword']))
             #print request.args['keyword'].encode('utf-8')
             ret = 'parameter category should be string'
+    if 'debug' in request.args:
+        try:
+            debug = int(request.args['debug'])
+            args['debug'] = debug
+        except:
+            ret = 'parameter debug should be int type'
     if args:
         ret = getTransitionDataDict(**args)
     else:
