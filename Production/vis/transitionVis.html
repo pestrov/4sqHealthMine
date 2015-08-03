@@ -51,6 +51,12 @@ tweetBubbleRaius = 3;
 chordWidth = Math.floor(width*chordToMapRatio);
 chordHeigth = height;
 
+north = 55.96
+south = 55.49
+east = 37.97
+west = 37.32
+regionRect = [west, east, south, north];
+
 var  outerRadius = Math.min(chordWidth, chordHeigth) / 2 - 10,
     innerRadius = outerRadius - 24;
 
@@ -177,7 +183,10 @@ function addMap(mapWidth, mapHeigth) {
 
 addLines = function (linesData) {
   linesGroup = svg.append("g");
-  var lines = linesGroup.selectAll("pathLine").data(linesData);
+  moscowData = linesData.filter(function (d) {
+     return pathInRect(d, regionRect)}
+   );
+  var lines = linesGroup.selectAll("pathLine").data(moscowData);
     lines
     .enter()
     .append("line")
@@ -185,10 +194,10 @@ addLines = function (linesData) {
     .style("opacity", 0.0)
     .style("vector-effect","non-scaling-stroke")
     .attr("stroke-width", 2.0)
-    .attr("x1", function(d) {return projection([d[0]['locations'][0][1], d[0]['locations'][0][0]])[0]})
-    .attr("y1", function(d) {return projection([d[0]['locations'][0][1], d[0]['locations'][0][0]])[1]})
-    .attr("x2", function(d) {return projection([d[0]['locations'][1][1], d[0]['locations'][1][0]])[0]})
-    .attr("y2", function(d) {return projection([d[0]['locations'][1][1], d[0]['locations'][1][0]])[1]})
+    .attr("x1", function(d) {return projection(dataLatLon(d, 0))[0]})
+    .attr("y1", function(d) {return projection(dataLatLon(d, 0))[1]})
+    .attr("x2", function(d) {return projection(dataLatLon(d, 1))[0]})
+    .attr("y2", function(d) {return projection(dataLatLon(d, 1))[1]})
     .transition()
     .duration(400)
     .style("opacity", 0.2);
@@ -201,6 +210,30 @@ addLines = function (linesData) {
     .remove();
 }
 
+function dataLatLon(d, index) {
+  return [d[0]['locations'][index][1], d[0]['locations'][index][0]];
+}
+
+function dataPathLength(d) {
+  var firstPair = dataLatLon(d, 0);
+  var secondPair = dataLatLon(d, 1);
+  return Math.sqrt(Math.pow(firstPair[0]-secondPair[0], 2) + Math.pow(firstPair[1]-secondPair[1], 2))
+}
+
+function pathInRect(d, rect) {
+  var firstPair = dataLatLon(d, 0);
+  var secondPair = dataLatLon(d, 1);
+  console.log(firstPair);
+  console.log(rect);
+  if ((rect[0] <= firstPair[0]) && (firstPair[0] <= rect[1]) &&
+       (rect[2] <= firstPair[1]) && (firstPair[1] <= rect[3])) {
+         if ((rect[0] <= secondPair[0]) && (secondPair[0] <= rect[1]) &&
+              (rect[2] <= secondPair[1]) && (secondPair[1] <= rect[3])) {
+                return true;
+         }
+  }
+  return false;
+}
 function getQueryParams(qs) {
     qs = qs.split('+').join(' ');
 
