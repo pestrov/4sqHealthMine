@@ -85,77 +85,94 @@ svg.append("circle")
     .attr("r", outerRadius);
 
 addMap(width-chordWidth, height-chordHeigth);
+
 var initialQuery = getQueryParams(document.location.search);
 var serverPath = "http://128.199.62.25/getTransitionData"
 var newQuery = serverPath.concat("?clusterId=").concat(initialQuery.clusterId)
                 .concat("&category=").concat(initialQuery.category)
                 .concat("&debug=").concat(initialQuery.debug);
 
-  d3.json(newQuery , function(transitionData) {
-    // Compute the chord layout.
-    matrix = transitionData['matrix'];
-    categories = transitionData['categories'];
-    checkins = transitionData['checkins'];
-    layout.matrix(matrix);
 
-    // Add a group per neighborhood.
-    var group = svg.selectAll(".group")
-        .data(layout.groups)
-        .enter().append("g")
-        .attr("class", "group")
-        .on("mouseover", mouseover);
-
-    // Add a mouseover title.
-    group.append("title").text(function(d, i) {
-      return categories[i].name + ": " + formatPercent(d.value) + " of origins";
-    });
-
-    // Add the group arc.
-    var groupPath = group.append("path")
-        .attr("id", function(d, i) { return "group" + i; })
-        .attr("d", arc)
-        .style("fill", function(d, i) { return categories[i].color; });
-
-    // Add a text label.
-    var groupText = group.append("text")
-        .attr("x", 6)
-        .attr("dy", 15);
-
-    groupText.append("textPath")
-        .attr("xlink:href", function(d, i) { return "#group" + i; })
-        .text(function(d, i) { return categories[i].name; });
-
-    // Remove the labels that don't fit. :(
-    groupText.filter(function(d, i) { return groupPath[0][i].getTotalLength() / 2 - 16 < this.getComputedTextLength(); })
-        .remove();
-
-    // Add the chords.
-    var chord = svg.selectAll(".chord")
-        .data(layout.chords)
-      .enter().append("path")
-        .attr("class", "chord")
-        .style("fill", function(d) { return categories[d.source.index].color; })
-        .attr("d", path);
-
-    // Add an elaborate mouseover title for each chord.
-    chord.append("title").text(function(d) {
-      return categories[d.source.index].name
-          + " → " + categories[d.target.index].name
-          + ": " + formatPercent(d.source.value)
-          + "\n" + categories[d.target.index].name
-          + " → " + categories[d.source.index].name
-          + ": " + formatPercent(d.target.value);
-    });
-
-    function mouseover(d, i) {
-      // console.log(checkins[i]);
-      addLines(checkins[i]);
-      chord.classed("fade", function(p) {
-        return p.source.index != i
-            && p.target.index != i;
-      });
-    }
+  d3.json(newQuery , function(error, transitionData) {
+    addChord(transitionData)
   });
+
+function getCategoriesDict(categories) {
+  categoriesColors = {};
+  var catIndex = 0
+  while (catIndex < categories.length) {
+    var category = categories[catIndex];
+    categoriesColors[category['name']] = category['color'];
+    catIndex++;
+  }
+  return categoriesColors;
+}
+
+function addChord(transitionData) {
+  // Compute the chord layout.
+  matrix = transitionData['matrix'];
+  categories = transitionData['categories'];
+  categoriesColors = getCategoriesDict(categories);
+  checkins = transitionData['checkins'];
+  layout.matrix(matrix);
+
+  // Add a group per neighborhood.
+  var group = svg.selectAll(".group")
+      .data(layout.groups)
+      .enter().append("g")
+      .attr("class", "group")
+      .on("mouseover", mouseover);
+
+  // Add a mouseover title.
+  group.append("title").text(function(d, i) {
+    return categories[i].name + ": " + formatPercent(d.value) + " of origins";
+  });
+
+  // Add the group arc.
+  var groupPath = group.append("path")
+      .attr("id", function(d, i) { return "group" + i; })
+      .attr("d", arc)
+      .style("fill", function(d, i) { return categories[i].color; });
+
+  // Add a text label.
+  var groupText = group.append("text")
+      .attr("x", 6)
+      .attr("dy", 15);
+
+  groupText.append("textPath")
+      .attr("xlink:href", function(d, i) { return "#group" + i; })
+      .text(function(d, i) { return categories[i].name; });
+
+  // // Remove the labels that don't fit. :(
+  groupText.filter(function(d, i) { return groupPath[0][i].getTotalLength() / 2 - 16 < this.getComputedTextLength(); })
+      .remove();
+
+  // Add the chords.
+  var chord = svg.selectAll(".chord")
+      .data(layout.chords)
+    .enter().append("path")
+      .attr("class", "chord")
+      .style("fill", function(d) { return categories[d.source.index].color; })
+      .attr("d", path);
+
+  // Add an elaborate mouseover title for each chord.
+  chord.append("title").text(function(d) {
+    return categories[d.source.index].name
+        + " → " + categories[d.target.index].name
+        + ": " + formatPercent(d.source.value)
+        + "\n" + categories[d.target.index].name
+        + " → " + categories[d.source.index].name
+        + ": " + formatPercent(d.target.value);
+  });
+
+  function mouseover(d, i) {
+    addLines(checkins[categories[i].name], i);
+    chord.classed("fade", function(p) {
+      return p.source.index != i
+          && p.target.index != i;
+    });
+  }
+}
 
 function addMap(mapWidth, mapHeigth) {
   projection = d3.geo.mercator()
@@ -183,16 +200,13 @@ function addMap(mapWidth, mapHeigth) {
           });
 }
 
-addLines = function (linesData) {
+addLines = function (linesData, index) {
 
   moscowData = linesData.filter(function (d) {
      return pathInRect(d, regionRect)}
    );
-
-  var idFunction = function(point, index) { return point[0]['ids'][0].concat(point[0]['ids'][1]).concat(index); }
+  var idFunction = function(point, index) { return point[0]['id'][0].concat(point[0]['id'][1]).concat(index); }
   var lines = linesGroup.selectAll("line").data(moscowData, idFunction);
-
-    console.log(moscowData.length);
 
     lines
     .enter()
@@ -209,16 +223,57 @@ addLines = function (linesData) {
     .duration(400)
     .style("opacity", 0.2);
 
-    lines
-    .exit()
-    .transition()
-    .duration(200)
-    .style("opacity", 0)
-    .remove();
+    fadeElements(lines);
+
+  var sourceVenueIdFunction = function(point) { return point[0]['id'][0]; }
+  var destVenueIdFunction = function(point) { return point[0]['id'][1]; }
+  var sourceVenues = linesGroup.selectAll(".sourceVenue").data(moscowData, sourceVenueIdFunction);
+
+  sourceVenuesColor = categories[index].color;
+
+  fadeElements(sourceVenues);
+  //Add venues
+  sourceVenues
+  .enter()
+  .append("circle")
+  .attr("transform", function(d) {
+    return "translate(" + projection(dataLatLon(d, 0)) + ")"; })
+  .attr("r", 3)
+  .attr("class","sourceVenue")
+  .style("fill", sourceVenuesColor)
+
+  sourceVenues.append("title").text(function(d, i) { return d[0]["name"][0];});
+
+  var destVenues = linesGroup.selectAll(".destVenue").data(moscowData, destVenueIdFunction);
+
+  fadeElements(destVenues);
+  //Add venues
+  destVenues
+  .enter()
+  .append("circle")
+  .attr("transform", function(d) {
+    return "translate(" + projection(dataLatLon(d, 1)) + ")"; })
+  .attr("r", 3)
+  .attr("class","destVenue")
+  .style("opacity", 0.8)
+  .style("fill", function(d) { return categoriesColors[d[0].cat[1]];});
+
+  destVenues.append("title").text(function(d, i) { return d[0]["name"][1];});
+
 }
 
+function fadeElements(elements) {
+  elements
+  .exit()
+  // .transition()
+  // .duration(200)
+  // .style("opacity", 0)
+  .remove();
+}
+
+//Helper functions
 function dataLatLon(d, index) {
-  return [d[0]['locations'][index][1], d[0]['locations'][index][0]];
+  return [d[0]['loc'][index][1], d[0]['loc'][index][0]];
 }
 
 function dataPathLength(d) {
@@ -251,5 +306,19 @@ function getQueryParams(qs) {
     }
 
     return params;
+}
+
+addZoom = function() {
+
+  zoom = d3.behavior.zoom()
+      .on("zoom",function() {
+        regionsGroup.attr("transform","translate("+
+              d3.event.translate.join(",")+")scale("+d3.event.scale+")");
+        regionsGroup.selectAll("path")
+            .attr("d", path.projection(projection));
+
+          });
+
+  svg.call(zoom)
 }
 </script>

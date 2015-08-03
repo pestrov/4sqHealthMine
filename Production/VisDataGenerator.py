@@ -8,6 +8,7 @@ from sys import stdout
 import collections
 from itertools import tee, izip
 import os
+import math
 
 def getCheckinsDataFrame():
     return pd.read_csv(rootDir+'data/LDAClusteredUsersMoreThan10.tsv', sep="\t", encoding="utf-8")
@@ -33,6 +34,9 @@ def venueCategoryFromId(venueId, checkinsDF):
 
 def venueLocationFromId(venueId, checkinsDF):
     return checkinsDF[checkinsDF.venueId == venueId].iloc[0][['lat','lng']].tolist()
+
+def venueNameFromId(venueId, checkinsDF):
+    return checkinsDF[checkinsDF.venueId == venueId].iloc[0]['name']
 
 def progress(i, n):
     stdout.write("\r%f%%" % (i*100/float(n)))
@@ -67,9 +71,12 @@ def getSequencesFromCheckins(checkinsDF):
         categoryPairs = []
 
         for venue1, venue2 in pairwise(sortedCheckins['venueId'].tolist()):
-            venuePairs.append({'ids':(venue1, venue2),
-                            'locations':(venueLocationFromId(venue1, sortedCheckins), venueLocationFromId(venue2, sortedCheckins))})
-            categoryPairs.append((venueCategoryFromId(venue1, checkinsDF), venueCategoryFromId(venue2, checkinsDF)))
+            categoryPair = (venueCategoryFromId(venue1, checkinsDF), venueCategoryFromId(venue2, checkinsDF))
+            venuePairs.append({'id':(venue1, venue2),
+                                'loc':(venueLocationFromId(venue1, sortedCheckins), venueLocationFromId(venue2, sortedCheckins)),
+                                'name':(venueNameFromId(venue1, sortedCheckins), venueNameFromId(venue2, sortedCheckins)),
+                                'cat':categoryPair})
+            categoryPairs.append(categoryPair)
 
         timeDiffs = []
         for checkin1, checkin2 in pairwise(sortedCheckins['createdAt'].tolist()):
@@ -156,6 +163,20 @@ def getMatrixForTopSuccessors(categoryName, categoryPairs, nTop = 10, withOthers
     normMatrix = [[float(count)/total for count in adjRow] for adjRow in adjMatrix]
     return normMatrix
 
+def filterCheckinsWithCategories(venuePairsGroupedByUser, categoriesArray):
+    filteredVenuePairs = {}
+    categoryNames = [cat["name"] for cat in categoriesArray]
+
+    for categoryName in categoryNames:
+        filteredVenuePairs[categoryName] = []
+
+    for userVenues in venuePairsGroupedByUser:
+        filteredUserVenuePairs = {cat:[venueTuple for venueTuple in userVenues if venueTuple[0]['cat'][0] == cat and venueTuple[0]['cat'][1] in categoryNames] for cat in categoryNames}
+        for categoryName in categoryNames:
+            filteredVenuePairs[categoryName].extend(filteredUserVenuePairs[categoryName])
+
+    return filteredVenuePairs
+
 def getDataFor(clusterId, categoryName):
     global rootDir
     rootDir = 'var/www/FlaskHello/FlaskHello/'
@@ -170,7 +191,9 @@ def getDataFor(clusterId, categoryName):
     (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds) = getSequencesFromCheckins(relevantCheckins)
 
     matrix = getMatrixForTopSuccessors(categoryName, categoryPairsGroupedByUser, nTop, 0)
-    categoriesDict = getTopSuccessorsColorsDict(categoryName, categoryPairsGroupedByUser, nTop)
+    categoriesArray = getTopSuccessorsColorsDict(categoryName, categoryPairsGroupedByUser, nTop)
+    filteredVenuePairs = filterCheckinsWithCategories(venuePairsGroupedByUser, categoriesArray)
     return {'matrix':matrix,
-           'categories':categoriesDict,
-           'checkins':venuePairsGroupedByUser}
+           'categories':categoriesArray,
+           'checkins':filteredVenuePairs}
+#print getDataFor(1, 'Park')['checkins']
