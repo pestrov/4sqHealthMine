@@ -124,7 +124,8 @@ function addChord(transitionData) {
     .enter().append("path")
       .attr("class", "chord")
       .style("fill", function(d) { return categories[d.source.index].color; })
-      .attr("d", path);
+      .attr("d", path)
+      .on("mouseover", mouseoverChord);
 
   // Add an elaborate mouseover title for each chord.
   chord.append("title").text(function(d) {
@@ -137,11 +138,15 @@ function addChord(transitionData) {
   });
 
   function mouseover(d, i) {
-    addLines(checkins[categories[i].name], i);
+    addLines(checkins[categories[i].name], "", i);
     chord.classed("fade", function(p) {
       return p.source.index != i
           && p.target.index != i;
     });
+  }
+
+  function mouseoverChord(d, i) {
+    addLines(checkins[categories[d.source.index].name], categories[d.target.index].name, d.source.index);
   }
 }
 
@@ -171,11 +176,20 @@ function addMap(mapWidth, mapHeigth) {
           });
 }
 
-addLines = function (linesData, index) {
+addLines = function (linesData, targetCategoryName, index) {
 
+//Moscow only
   moscowData = linesData.filter(function (d) {
-     return pathInRect(d, regionRect)}
-   );
+     return pathInRect(d, regionRect)
+   });
+   
+//Category pairs only checkins
+   if (targetCategoryName.length) {
+     moscowData = moscowData.filter(function (d) {
+        return d[0]['cat'][1] == targetCategoryName;
+      });
+   }
+
   var idFunction = function(point, index) { return point[0]['id'][0].concat(point[0]['id'][1]).concat(index); }
   var lines = linesGroup.selectAll("line").data(moscowData, idFunction);
 
