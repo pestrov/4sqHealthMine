@@ -1,44 +1,14 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
   <title> Checkins flow in Moscow </title>
-  <style>
-  #circle circle {
-    fill: none;
-    pointer-events: all;
-  }
-
-  .group path {
-    fill-opacity: .5;
-  }
-
-  path {
-    fill: none;
-    stroke: #000;
-    fill:#f7f7f7;
-    stroke-linejoin: round;
-    stroke-linecap: round;
-    stroke-width: .5px;
-  }
-
-  path.chord {
-    stroke: #000;
-    stroke-width: .25px;
-  }
-
-  #circle:hover path.fade {
-    display: none;
-  }
-
-
-  </style>
-
+  <link rel="stylesheet" href="style.css"/>
   <body>
 
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://d3js.org/topojson.v1.min.js"></script>
     <script>
 
-var chordToMapRatio = 1.0/2.0;
+var chordToMapRatio = 2.0/5.0;
 var width = window.innerWidth
                     || document.documentElement.clientWidth
                     || document.body.clientWidth;
@@ -79,7 +49,7 @@ svg = d3.select("body").append("svg")
     .attr("height", height)
   .append("g")
     .attr("id", "circle")
-    .attr("transform", "translate(" + chordWidth / 2 + "," + chordHeigth / 2 + ")");
+    .attr("transform", "translate(" + chordWidth *0.625 + "," + chordHeigth * 0.45 + ")");
 
 svg.append("circle")
     .attr("r", outerRadius);
@@ -132,7 +102,8 @@ function addChord(transitionData) {
   var groupPath = group.append("path")
       .attr("id", function(d, i) { return "group" + i; })
       .attr("d", arc)
-      .style("fill", function(d, i) { return categories[i].color; });
+      .style("fill", function(d, i) { return categories[i].color; })
+      .style("stroke", "none");
 
   // Add a text label.
   var groupText = group.append("text")
@@ -177,14 +148,14 @@ function addChord(transitionData) {
 function addMap(mapWidth, mapHeigth) {
   projection = d3.geo.mercator()
   .rotate([-10.7,4.2,-6.3])
-  .center([38.4, 55.8])
-  .scale(20000)
+  .center([38.5, 55.85])
+  .scale(40000)
   .translate([mapWidth, mapHeigth / 2]);
 
   var path = d3.geo.path()
   .projection(projection);
 
-  d3.json("mo.geojson", function(error, moscow) {
+  d3.json("mo1.geojson", function(error, moscow) {
           if (error) return console.error(error);
 
           regionsGroup = svg.append("g");
@@ -238,7 +209,7 @@ addLines = function (linesData, index) {
   .append("circle")
   .attr("transform", function(d) {
     return "translate(" + projection(dataLatLon(d, 0)) + ")"; })
-  .attr("r", 3)
+  .attr("r", 4)
   .attr("class","sourceVenue")
   .style("fill", sourceVenuesColor)
 
@@ -253,7 +224,7 @@ addLines = function (linesData, index) {
   .append("circle")
   .attr("transform", function(d) {
     return "translate(" + projection(dataLatLon(d, 1)) + ")"; })
-  .attr("r", 3)
+  .attr("r", 4)
   .attr("class","destVenue")
   .style("opacity", 0.8)
   .style("fill", function(d) { return categoriesColors[d[0].cat[1]];});
