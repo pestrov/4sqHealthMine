@@ -182,7 +182,7 @@ addLines = function (linesData, targetCategoryName, index) {
   moscowData = linesData.filter(function (d) {
      return pathInRect(d, regionRect)
    });
-   
+
 //Category pairs only checkins
    if (targetCategoryName.length) {
      moscowData = moscowData.filter(function (d) {
@@ -196,17 +196,17 @@ addLines = function (linesData, targetCategoryName, index) {
     lines
     .enter()
     .append("line")
-    .style("stroke", "blue")
+    .style("stroke", "#A9A9A9")
     .style("opacity", 0.0)
     .style("vector-effect","non-scaling-stroke")
-    .attr("stroke-width", 2.0)
+    .attr("stroke-width", 1.0)
     .attr("x1", function(d) {return projection(dataLatLon(d, 0))[0]})
     .attr("y1", function(d) {return projection(dataLatLon(d, 0))[1]})
     .attr("x2", function(d) {return projection(dataLatLon(d, 1))[0]})
     .attr("y2", function(d) {return projection(dataLatLon(d, 1))[1]})
     .transition()
     .duration(400)
-    .style("opacity", 0.2);
+    .style("opacity", 0.5);
 
     fadeElements(lines);
 
