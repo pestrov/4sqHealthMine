@@ -1,0 +1,55 @@
+body {
+    width:1440px;
+    margin:0;
+    padding:0;
+}
+#body {
+    margin:0 auto;
+}
+#left-column {
+    float:left;
+    width:30%;
+    background:#bfb;
+}
+#controls-block {
+    position: absolute;
+    height: 50%;
+    width:30%;
+    background:#bfb;
+}
+#info-block {
+    position: absolute;
+    height: 50%;
+    width:30%;
+    top: 50%;
+    background:#ddf;
+}
+#right-container {
+    float:right;
+    width:70%;
+}
+#middle-column {
+    float:left;
+    width:50%;
+}
+#chord-block {
+    position: absolute;
+    height: 50%;
+    width:30%;
+    background:#ddf;
+}
+#bins-block {
+    position: absolute;
+    height: 50%;
+    width:30%;
+    top: 50%;
+    background:#bfb;
+}
+#map-block {
+    position: absolute;
+    float:right;
+    width:40%;
+    left:60%;
+    height:100%;
+    background:#dfd;
+}
