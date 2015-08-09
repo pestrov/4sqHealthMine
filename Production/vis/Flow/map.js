@@ -38,14 +38,22 @@ function addOverlay(mapWidth, mapHeigth, map) {
 }
 
 function redraw() {
-    // var marker = layer.selectAll("svg")
-    //     .data(moscowData, idFunction)
-    //     .each(transform) // update existing markers
-    //   .enter().append("svg:svg")
-    //     .each(transform)
-    //     .attr("class", "marker");
-    console.log(transformLatLng()[37.6, 58.5]));
+    linesGroup.selectAll(".sourceVenue")
+    .attr("transform", function(d) {return "translate(" + transformLatLng(dataLatLon(d, 0)) + ")";})
 
+    linesGroup.selectAll(".destVenue")
+      .attr("transform", function(d) { return "translate(" + transformLatLng(dataLatLon(d, 1)) + ")";})
+
+    linesGroup.selectAll("line")
+      .each(setLinePoints);
+}
+
+function setLinePoints(d) {
+  return d3.select(this)
+  .attr("x1", function(d) {return transformLatLng(dataLatLon(d, 0))[0]})
+  .attr("y1", function(d) {return transformLatLng(dataLatLon(d, 0))[1]})
+  .attr("x2", function(d) {return transformLatLng(dataLatLon(d, 1))[0]})
+  .attr("y2", function(d) {return transformLatLng(dataLatLon(d, 1))[1]})
 }
 
 function transformLatLng(d) {
@@ -80,14 +88,8 @@ addLines = function (linesData, targetCategoryName, index) {
     lines
     .enter()
     .append("line")
-    .style("stroke", "black")
-    .style("opacity", 0.0)
-    .style("vector-effect","non-scaling-stroke")
-    .attr("stroke-width", 1.5)
-    .attr("x1", function(d) {return transformLatLng(dataLatLon(d, 0))[0]})
-    .attr("y1", function(d) {return transformLatLng(dataLatLon(d, 0))[1]})
-    .attr("x2", function(d) {return transformLatLng(dataLatLon(d, 1))[0]})
-    .attr("y2", function(d) {return transformLatLng(dataLatLon(d, 1))[1]})
+    .attr("class", "transitionLine")
+    .each(setLinePoints)
     .transition()
     .duration(400)
     .style("opacity", function(d) { return (360.0-d[1])/360.0;});

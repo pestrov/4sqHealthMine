@@ -28,3 +28,10 @@ opacity: 1;
 #circle:hover path.fade {
   display: none;
 }
+
+.transitionLine {
+  stroke: black;
+  opacity: 0.0;
+  vector-effect: non-scaling-stroke;
+  stroke-width: 1.5px;
+}
