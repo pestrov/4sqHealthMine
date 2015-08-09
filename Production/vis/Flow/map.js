@@ -9,34 +9,49 @@
 
 function addMap(mapWidth, mapHeigth) {
 
-  projection = d3.geo.mercator()
-  .rotate([-10.7,4.2,-6.3])
-  .center([38.7, 55.85])
-  .scale(42000)
-  .translate([mapWidth, mapHeigth / 2]);
+ var map = new google.maps.Map(d3.select("#map-block").node(), {
+    zoom: 10,
+    center: new google.maps.LatLng(55.7517, 37.6178),
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  });
 
-  var path = d3.geo.path()
-  .projection(projection);
+  addOverlay(mapWidth, mapHeigth, map);
+}
 
-  mapSvg = d3.select("#map-block").append("svg")
-  .attr("width", mapWidth)
-  .attr("height", mapHeigth);
+function addOverlay(mapWidth, mapHeigth, map) {
 
-  d3.json("mo1.geojson", function(error, moscow) {
-          if (error) return console.error(error);
-          regionsGroup = mapSvg.append("g");
+  overlay = new google.maps.OverlayView();
 
-          regionsGroup
-          .selectAll("path")
-          .data(moscow.features)
-          .enter().append("path")
-          .attr("class", "region")
-          .attr("d", path);
+   overlay.onAdd = function() {
+      mapSvg = d3.select(this.getPanes().overlayLayer)
+      .append("div")
+      .append("svg")
+      .attr("width", mapWidth)
+      .attr("height", mapHeigth);
 
-          linesGroup = mapSvg.append("g");
-          });
+      linesGroup = mapSvg.append("g");
+      projection = this.getProjection();
+    };
 
-  return mapSvg;
+  overlay.draw = redraw;
+  overlay.setMap(map);
+}
+
+function redraw() {
+    // var marker = layer.selectAll("svg")
+    //     .data(moscowData, idFunction)
+    //     .each(transform) // update existing markers
+    //   .enter().append("svg:svg")
+    //     .each(transform)
+    //     .attr("class", "marker");
+    console.log(transformLatLng()[37.6, 58.5]));
+
+}
+
+function transformLatLng(d) {
+  d = new google.maps.LatLng(d[1], d[0]);
+  d = projection.fromLatLngToDivPixel(d);
+  return [d.x, d.y];
 }
 
 addLines = function (linesData, targetCategoryName, index) {
@@ -58,7 +73,8 @@ addLines = function (linesData, targetCategoryName, index) {
       });
    }
 
-  var idFunction = function(point, index) { return point[0]['id'][0].concat(point[0]['id'][1]).concat(index); }
+  var idFunction = function(point, index) {
+    return point[0]['id'][0].concat(point[0]['id'][1]).concat(index); }
   var lines = linesGroup.selectAll("line").data(moscowData, idFunction);
 
     lines
@@ -68,10 +84,10 @@ addLines = function (linesData, targetCategoryName, index) {
     .style("opacity", 0.0)
     .style("vector-effect","non-scaling-stroke")
     .attr("stroke-width", 1.5)
-    .attr("x1", function(d) {return projection(dataLatLon(d, 0))[0]})
-    .attr("y1", function(d) {return projection(dataLatLon(d, 0))[1]})
-    .attr("x2", function(d) {return projection(dataLatLon(d, 1))[0]})
-    .attr("y2", function(d) {return projection(dataLatLon(d, 1))[1]})
+    .attr("x1", function(d) {return transformLatLng(dataLatLon(d, 0))[0]})
+    .attr("y1", function(d) {return transformLatLng(dataLatLon(d, 0))[1]})
+    .attr("x2", function(d) {return transformLatLng(dataLatLon(d, 1))[0]})
+    .attr("y2", function(d) {return transformLatLng(dataLatLon(d, 1))[1]})
     .transition()
     .duration(400)
     .style("opacity", function(d) { return (360.0-d[1])/360.0;});
@@ -92,7 +108,7 @@ addLines = function (linesData, targetCategoryName, index) {
   .enter()
   .append("circle")
   .attr("transform", function(d) {
-    return "translate(" + projection(dataLatLon(d, 0)) + ")"; })
+    return "translate(" + transformLatLng(dataLatLon(d, 0)) + ")"; })
   .attr("r", 5)
   .attr("class","sourceVenue")
   .style("opacity", 0.0)
@@ -111,7 +127,7 @@ addLines = function (linesData, targetCategoryName, index) {
   .enter()
   .append("circle")
   .attr("transform", function(d) {
-    return "translate(" + projection(dataLatLon(d, 1)) + ")"; })
+    return "translate(" + transformLatLng(dataLatLon(d, 1)) + ")"; })
   .attr("r", 5)
   .attr("class","destVenue")
   .style("opacity", 0.0)

@@ -3,7 +3,7 @@
   var mapBox = d3.select("#map-block").node().getBoundingClientRect();
 
   chordSvg = initChord(chordBox.width, chordBox.height)
-  mapSvg = addMap(mapBox.width, mapBox.height);
+  addMap(mapBox.width, mapBox.height);
 
   var initialQuery = getQueryParams(document.location.search);
   recentOnly = initialQuery.recentOnly;
