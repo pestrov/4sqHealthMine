@@ -1,151 +1,158 @@
 (function(){
-  //UI configuration
-  var itemSize = 18,
-    cellSize = itemSize-1,
-    width = 800,
-    height = 800,
-    margin = {top:20,right:20,bottom:20,left:25};
+  north = 55.96
+  south = 55.49
+  east = 37.97
+  west = 37.32
+  regionRect = [west, east, south, north];
 
-  //formats
-  var hourFormat = d3.time.format('%H'),
-    dayFormat = d3.time.format('%j'),
-    timeFormat = d3.time.format('%Y-%m-%dT%X'),
-    monthDayFormat = d3.time.format('%m.%d');
-
-  //data vars for rendering
-  var dateExtent = null,
-    data = null,
-    dayOffset = 0,
-    colorCalibration = ['#f6faaa','#FEE08B','#FDAE61','#F46D43','#D53E4F','#9E0142'],
-    dailyValueExtent = {};
-
-  //axises and scales
-  var axisWidth = 0 ,
-    axisHeight = itemSize*24,
-    xAxisScale = d3.time.scale(),
-    xAxis = d3.svg.axis()
-      .orient('top')
-      .ticks(d3.time.days,3)
-      .tickFormat(monthDayFormat),
-    yAxisScale = d3.scale.linear()
-      .range([0,axisHeight])
-      .domain([0,24]),
-    yAxis = d3.svg.axis()
-      .orient('left')
-      .ticks(5)
-      .tickFormat(d3.format('02d'))
-      .scale(yAxisScale);
-
-  initCalibration();
-
-  var svg = d3.select('[role="heatmap"]');
-  var heatmap = svg
-    .attr('width',width)
-    .attr('height',height)
-  .append('g')
-    .attr('width',width-margin.left-margin.right)
-    .attr('height',height-margin.top-margin.bottom)
-    .attr('transform','translate('+margin.left+','+margin.top+')');
-  var rect = null;
-
-  d3.json('pm25.json',function(err,data){
-    data = data.data;
-    data.forEach(function(valueObj){
-      valueObj['date'] = timeFormat.parse(valueObj['timestamp']);
-      var day = valueObj['day'] = monthDayFormat(valueObj['date']);
-
-      var dayData = dailyValueExtent[day] = (dailyValueExtent[day] || [1000,-1]);
-      var pmValue = valueObj['value']['PM2.5'];
-      dayData[0] = d3.min([dayData[0],pmValue]);
-      dayData[1] = d3.max([dayData[1],pmValue]);
-    });
-
-    dateExtent = d3.extent(data,function(d){
-      return d.date;
-    });
-
-    axisWidth = itemSize*(dayFormat(dateExtent[1])-dayFormat(dateExtent[0])+1);
-
-    //render axises
-    xAxis.scale(xAxisScale.range([0,axisWidth]).domain([dateExtent[0],dateExtent[1]]));
-    svg.append('g')
-      .attr('transform','translate('+margin.left+','+margin.top+')')
-      .attr('class','x axis')
-      .call(xAxis)
-    .append('text')
-      .text('date')
-      .attr('transform','translate('+axisWidth+',-10)');
-
-    svg.append('g')
-      .attr('transform','translate('+margin.left+','+margin.top+')')
-      .attr('class','y axis')
-      .call(yAxis)
-    .append('text')
-      .text('time')
-      .attr('transform','translate(-10,'+axisHeight+') rotate(-90)');
-
-    //render heatmap rects
-    dayOffset = dayFormat(dateExtent[0]);
-    rect = heatmap.selectAll('rect')
-      .data(data)
-    .enter().append('rect')
-      .attr('width',cellSize)
-      .attr('height',cellSize)
-      .attr('x',function(d){
-        return itemSize*(dayFormat(d.date)-dayOffset);
-      })
-      .attr('y',function(d){
-        return hourFormat(d.date)*itemSize;
-      })
-      .attr('fill','#ffffff');
-
-    rect.filter(function(d){ return d.value['PM2.5']>0;})
-      .append('title')
-      .text(function(d){
-        return monthDayFormat(d.date)+' '+d.value['PM2.5'];
-      });
-
-    renderColor();
-  });
-
-  function initCalibration(){
-    d3.select('[role="calibration"] [role="example"]').select('svg')
-      .selectAll('rect').data(colorCalibration).enter()
-    .append('rect')
-      .attr('width',cellSize)
-      .attr('height',cellSize)
-      .attr('x',function(d,i){
-        return i*itemSize;
-      })
-      .attr('fill',function(d){
-        return d;
-      });
-
-    //bind click event
-    d3.selectAll('[role="calibration"] [name="displayType"]').on('click',function(){
-      renderColor();
-    });
-  }
-
-  function renderColor(){
-    var renderByCount = document.getElementsByName('displayType')[0].checked;
-
-    rect
-      .filter(function(d){
-        return (d.value['PM2.5']>=0);
-      })
-      .transition()
-      .delay(function(d){
-        return (dayFormat(d.date)-dayOffset)*15;
-      })
-      .duration(500)
-      .attrTween('fill',function(d,i,a){
-        //choose color dynamicly
-        var colorIndex = d3.scale.quantize()
-          .range([0,1,2,3,4,5])
-          .domain((renderByCount?[0,500]:dailyValueExtent[d.day]));
-
-        return d3.interpolate(a,colorCalibration[colorIndex(d.value['PM2.5'])]);
-      });
-  }
 })();
+
+function addMap(mapWidth, mapHeigth) {
+
+  projection = d3.geo.mercator()
+  .rotate([-10.7,4.2,-6.3])
+  .center([38.7, 55.85])
+  .scale(42000)
+  .translate([mapWidth, mapHeigth / 2]);
+
+  var path = d3.geo.path()
+  .projection(projection);
+
+  mapSvg = d3.select("#map-block").append("svg")
+  .attr("width", mapWidth)
+  .attr("height", mapHeigth);
+
+  d3.json("mo1.geojson", function(error, moscow) {
+          if (error) return console.error(error);
+          regionsGroup = mapSvg.append("g");
+
+          regionsGroup
+          .selectAll("path")
+          .data(moscow.features)
+          .enter().append("path")
+          .attr("class", "region")
+          .attr("d", path);
+
+          linesGroup = mapSvg.append("g");
+          });
+
+  return mapSvg;
+}
+
+addLines = function (linesData, targetCategoryName, index) {
+//Moscow only
+  moscowData = linesData.filter(function (d) {
+     return pathInRect(d, regionRect)
+   });
+
+//Category pairs only checkins
+   if (targetCategoryName.length) {
+     moscowData = moscowData.filter(function (d) {
+        return d[0]['cat'][1] == targetCategoryName;
+      });
+   }
+
+   if (recentOnly) {
+     moscowData = moscowData.filter(function (d) {
+        return d[1] <= 360;
+      });
+   }
+
+  var idFunction = function(point, index) { return point[0]['id'][0].concat(point[0]['id'][1]).concat(index); }
+  var lines = linesGroup.selectAll("line").data(moscowData, idFunction);
+
+    lines
+    .enter()
+    .append("line")
+    .style("stroke", "black")
+    .style("opacity", 0.0)
+    .style("vector-effect","non-scaling-stroke")
+    .attr("stroke-width", 1.5)
+    .attr("x1", function(d) {return projection(dataLatLon(d, 0))[0]})
+    .attr("y1", function(d) {return projection(dataLatLon(d, 0))[1]})
+    .attr("x2", function(d) {return projection(dataLatLon(d, 1))[0]})
+    .attr("y2", function(d) {return projection(dataLatLon(d, 1))[1]})
+    .transition()
+    .duration(400)
+    .style("opacity", function(d) { return (360.0-d[1])/360.0;});
+
+    lines.append("title").text(function(d, i) { return d[1].toString().concat(' min');});
+
+    fadeElements(lines);
+
+  var sourceVenueIdFunction = function(point) { return point[0]['id'][0]; }
+  var destVenueIdFunction = function(point) { return point[0]['id'][1]; }
+  var sourceVenues = linesGroup.selectAll(".sourceVenue").data(moscowData, sourceVenueIdFunction);
+
+  sourceVenuesColor = categories[index].color;
+
+  fadeElements(sourceVenues);
+  //Add venues
+  sourceVenues
+  .enter()
+  .append("circle")
+  .attr("transform", function(d) {
+    return "translate(" + projection(dataLatLon(d, 0)) + ")"; })
+  .attr("r", 5)
+  .attr("class","sourceVenue")
+  .style("opacity", 0.0)
+  .style("fill", sourceVenuesColor)
+  .transition()
+  .duration(400)
+  .style("opacity", 1.0)
+
+  sourceVenues.append("title").text(function(d, i) { return d[0]["name"][0];});
+
+  var destVenues = linesGroup.selectAll(".destVenue").data(moscowData, destVenueIdFunction);
+
+  fadeElements(destVenues);
+  //Add venues
+  destVenues
+  .enter()
+  .append("circle")
+  .attr("transform", function(d) {
+    return "translate(" + projection(dataLatLon(d, 1)) + ")"; })
+  .attr("r", 5)
+  .attr("class","destVenue")
+  .style("opacity", 0.0)
+  .style("fill", function(d) { return categoriesColors[d[0].cat[1]];})
+  .transition()
+  .duration(400)
+  .style("opacity", 0.8)
+
+  destVenues.append("title").text(function(d, i) { return d[0]["name"][1];});
+
+}
+
+function fadeElements(elements) {
+  elements
+  .exit()
+  // .transition()
+  // .duration(200)
+  // .style("opacity", 0)
+  .remove();
+}
+
+//Helper functions
+function dataLatLon(d, index) {
+  return [d[0]['loc'][index][1], d[0]['loc'][index][0]];
+}
+
+function dataPathLength(d) {
+  var firstPair = dataLatLon(d, 0);
+  var secondPair = dataLatLon(d, 1);
+  return Math.sqrt(Math.pow(firstPair[0]-secondPair[0], 2) + Math.pow(firstPair[1]-secondPair[1], 2))
+}
+
+function pathInRect(d, rect) {
+  var firstPair = dataLatLon(d, 0);
+  var secondPair = dataLatLon(d, 1);
+  if ((rect[0] <= firstPair[0]) && (firstPair[0] <= rect[1]) &&
+       (rect[2] <= firstPair[1]) && (firstPair[1] <= rect[3])) {
+         if ((rect[0] <= secondPair[0]) && (secondPair[0] <= rect[1]) &&
+              (rect[2] <= secondPair[1]) && (secondPair[1] <= rect[3])) {
+                return true;
+         }
+  }
+  return false;
+}
