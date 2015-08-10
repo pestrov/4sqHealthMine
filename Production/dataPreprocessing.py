@@ -22,8 +22,8 @@ def generateDataForDataFrame(checkinsDF, folder):
 
     for clusterId in clusterIds:
         relevantCheckins = checkinsDF[checkinsDF.clusterId == clusterId]
-        (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds) = getSequencesFromCheckins(relevantCheckins, maps)
-
+        (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds, visitedVenueIds) = getSequencesFromCheckins(relevantCheckins, maps)
+        saveVisitedVenuesNames(visitedVenueIds, clusterId, clustersFldr(folder), maps['venueNames'])
         saveVenuePairs(venuePairsGroupedByUser, clusterId, clustersFldr(folder))
         saveCategoryPairs(categoryPairsGroupedByUser, clusterId, clustersFldr(folder))
 
@@ -46,6 +46,8 @@ def buildMaps(checkinsDF, folder):
 
         with open(folder + '/maps.json', 'w') as outfile:
             json.dump(maps, outfile)
+        with open(folder + '/categoryNames.json', 'w') as outfile:
+            json.dump(maps['categoriesNames'], outfile)
     return maps
 
 #Building indexes
@@ -53,8 +55,8 @@ def getCheckinsDataFrame(rootDir):
     return pd.read_csv(rootDir+'/data/LDAClusteredUsersMoreThan10.tsv', sep="\t", encoding="utf-8")
 
 def getDataForSavedDF():
-    #rootDir = 'var/www/FlaskHello/FlaskHello/'
-    rootDir = '.'
+    rootDir = '/var/www/FlaskHello/FlaskHello'
+    #rootDir = '.'
     checkinsDF = getCheckinsDataFrame(rootDir)
     generateDataForDataFrame(checkinsDF, rootDir + '/' + 'julyLDA')
 
@@ -78,6 +80,7 @@ def getSequencesFromCheckins(checkinsDF, maps):
     categoryPairsGroupedByUser = []
     userIds = []
     count = len(checkinsGroupedByUser)
+    visitedVenueIds = set()
 
     for index, group in enumerate(checkinsGroupedByUser):
         sortedCheckins = group[1].sort("createdAt")
@@ -91,6 +94,7 @@ def getSequencesFromCheckins(checkinsDF, maps):
                                 'loc':((maps['lng'][venue1], maps['lat'][venue1]), (maps['lng'][venue2], maps['lat'][venue2])),
                                 'name':(maps["venueNames"][venue1], maps["venueNames"][venue2]),
                                 'cat':categoryPair})
+            visitedVenueIds.update([venue1, venue2]);
             categoryPairs.append(categoryPair)
 
         timeDiffs = []
@@ -100,7 +104,7 @@ def getSequencesFromCheckins(checkinsDF, maps):
         venuePairsGroupedByUser.append(zip(venuePairs,timeDiffs))
         categoryPairsGroupedByUser.append(zip(categoryPairs,timeDiffs))
         userIds.append(group[0])
-    return (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds)
+    return (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds, visitedVenueIds)
 
 #Work with files
 def saveVenuePairs(venuePairsGroupedByUser, clusterId, clusterFolder):
@@ -111,12 +115,24 @@ def saveCategoryPairs(categoryPairsGroupedByUser, clusterId, clusterFolder):
     with open(clusterFolder + '/categoryPairs' + str(clusterId) + '.json', 'w') as outfile:
         json.dump(categoryPairsGroupedByUser, outfile)
 
+def saveVisitedVenuesNames(visitedVenueIds, clusterId, clusterFolder, venueNames):
+    with open(clusterFolder + '/visitedVenues' + str(clusterId) + '.json', 'w') as outfile:
+        json.dump({venueId: venueNames[venueId] for venueId in visitedVenueIds}, outfile)
+
 def readVenuePairs(clusterId, clusterFolder):
     with open(clusterFolder + '/venuePairs' + str(clusterId) + '.json', 'r') as infile:
         return json.load(infile)
 
 def readCategoryPairs(clusterId, clusterFolder):
     with open(clusterFolder + '/categoryPairs' + str(clusterId) + '.json', 'r') as infile:
+        return json.load(infile)
+
+def readVisitedVenuesNames(clusterId, projectFolder):
+    with open(clustersFldr(projectFolder) + '/visitedVenues' + str(clusterId) + '.json', 'r') as infile:
+        return json.load(infile)
+
+def readCategoriesNames(folder):
+    with open(folder + '/categoryNames.json', 'r') as infile:
         return json.load(infile)
 
 def getSavedSequences(clusterId, projectFolder):
@@ -137,4 +153,4 @@ def pairwise(iterable):
     a, b = tee(iterable)
     next(b, None)
     return izip(a, b)
-# getDataForSavedDF()
+#getDataForSavedDF()

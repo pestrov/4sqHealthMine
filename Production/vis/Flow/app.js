@@ -13,9 +13,8 @@
   var newQuery = serverPath.concat("?clusterId=").concat(initialQuery.clusterId)
                   .concat("&category=").concat(initialQuery.category)
                   .concat("&debug=").concat(initialQuery.debug);
-
   d3.json(newQuery , function(error, transitionData) {
-      console.log(transitionData);
+      console.log(error);
       addChord(transitionData, chordSvg)
   });
 

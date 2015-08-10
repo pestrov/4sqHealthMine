@@ -44,6 +44,7 @@ function addChord(transitionData, chordSvg) {
   // Compute the chord layout.
   matrix = transitionData['matrix'];
   categories = transitionData['categories'];
+  categoryNames = transitionData['categoryNames'];
   categoriesColors = getCategoriesDict(categories);
   checkins = transitionData['checkins'];
   chordLayout.matrix(matrix);
@@ -57,7 +58,7 @@ function addChord(transitionData, chordSvg) {
 
   // Add a mouseover title.
   group.append("title").text(function(d, i) {
-    return categories[i].name + ": " + formatPercent(d.value) + " of origins";
+    return categoryNames[categories[i].name] + ": " + formatPercent(d.value) + " of origins";
   });
 
   // Add the group arc.
@@ -74,7 +75,7 @@ function addChord(transitionData, chordSvg) {
 
   groupText.append("textPath")
       .attr("xlink:href", function(d, i) { return "#group" + i; })
-      .text(function(d, i) { return categories[i].name; });
+      .text(function(d, i) { return categoryNames[categories[i].name]; });
 
   // // Remove the labels that don't fit. :(
   groupText.filter(function(d, i) { return groupPath[0][i].getTotalLength() / 2 - 16 < this.getComputedTextLength(); })
@@ -91,11 +92,11 @@ function addChord(transitionData, chordSvg) {
 
   // Add an elaborate mouseover title for each chord.
   chord.append("title").text(function(d) {
-    return categories[d.source.index].name
-        + " → " + categories[d.target.index].name
+    return categoryNames[categories[d.source.index].name]
+        + " → " + categoryNames[categories[d.target.index].name]
         + ": " + formatPercent(d.source.value)
-        + "\n" + categories[d.target.index].name
-        + " → " + categories[d.source.index].name
+        + "\n" + categoryNames[categories[d.target.index].name]
+        + " → " + categoryNames[categories[d.source.index].name]
         + ": " + formatPercent(d.target.value);
   });
 
