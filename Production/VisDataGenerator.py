@@ -9,34 +9,7 @@ import collections
 from itertools import tee, izip
 import os
 import math
-
-def getCheckinsDataFrame():
-    return pd.read_csv(rootDir+'data/LDAClusteredUsersMoreThan10.tsv', sep="\t", encoding="utf-8")
-
-
-def countUsersAtVenue(venuedId, checkinsDF):
-    return len(np.unique(checkinsDF[checkinsDF.venueId == venueId]['userId'].tolist()))
-
-#Create lookup dict
-def getVenuesCatDict():
-    venuesCatDict = {}
-    with open(rootDir+'data/venuesCatDict.json') as data_file:
-        venuesCatDict = json.load(data_file)
-    if len(venuesCatDict) == 0:
-        for venueId in set(checkinsDF.venueId.tolist()):
-            venuesCatDict[venueId] = checkinsDF[checkinsDF.venueId == venueId].iloc[0]['categoryName']
-    return venuesCatDict
-
-def venueCategoryFromId(venueId, checkinsDF):
-    if venueId not in venuesCatDict:
-        venuesCatDict[venueId] = checkinsDF[checkinsDF.venueId == venueId].iloc[0]['categoryName']
-    return venuesCatDict[venueId]
-
-def venueLocationFromId(venueId, checkinsDF):
-    return checkinsDF[checkinsDF.venueId == venueId].iloc[0][['lat','lng']].tolist()
-
-def venueNameFromId(venueId, checkinsDF):
-    return checkinsDF[checkinsDF.venueId == venueId].iloc[0]['name']
+import dataPreprocessing
 
 def progress(i, n):
     stdout.write("\r%f%%" % (i*100/float(n)))
@@ -45,50 +18,7 @@ def progress(i, n):
         stdout.write("\r100%")
         print("\r\n")
 
-
 # In[26]:
-
-def pairwise(iterable):
-    a, b = tee(iterable)
-    next(b, None)
-    return izip(a, b)
-
-
-# In[45]:
-
-def getSequencesFromCheckins(checkinsDF):
-    checkinsGroupedByUser = checkinsDF.groupby('userId')
-    venuePairsGroupedByUser = []
-    categoryPairsGroupedByUser = []
-    userIds = []
-    count = len(checkinsGroupedByUser)
-
-    for index, group in enumerate(checkinsGroupedByUser):
-        #progress(index, count)
-        sortedCheckins = group[1].sort("createdAt")
-
-        venuePairs = []
-        categoryPairs = []
-
-        for venue1, venue2 in pairwise(sortedCheckins['venueId'].tolist()):
-            categoryPair = (venueCategoryFromId(venue1, checkinsDF), venueCategoryFromId(venue2, checkinsDF))
-            venuePairs.append({'id':(venue1, venue2),
-                                'loc':(venueLocationFromId(venue1, sortedCheckins), venueLocationFromId(venue2, sortedCheckins)),
-                                'name':(venueNameFromId(venue1, sortedCheckins), venueNameFromId(venue2, sortedCheckins)),
-                                'cat':categoryPair})
-            categoryPairs.append(categoryPair)
-
-        timeDiffs = []
-        for checkin1, checkin2 in pairwise(sortedCheckins['createdAt'].tolist()):
-            timeDiffs.append((checkin2-checkin1)/60)
-
-        venuePairsGroupedByUser.append(zip(venuePairs,timeDiffs))
-        categoryPairsGroupedByUser.append(zip(categoryPairs,timeDiffs))
-        userIds.append(group[0])
-    return (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds)
-
-
-# In[20]:
 
 def getCategoryPredcessorsCounter(categoryName, categoryPairs):
     predcessorsByUser = [[transitionTuple[0][0] for transitionTuple in userTransitions if transitionTuple[0][1] == categoryName and transitionTuple[1] < 60*6] for userTransitions in categoryPairs]
@@ -177,23 +107,23 @@ def filterCheckinsWithCategories(venuePairsGroupedByUser, categoriesArray):
 
     return filteredVenuePairs
 
+
+import time
 def getDataFor(clusterId, categoryName):
     global rootDir
-    rootDir = 'var/www/FlaskHello/FlaskHello/'
-
-    checkinsDF = getCheckinsDataFrame()
-    global venuesCatDict
-    venuesCatDict = getVenuesCatDict()
-
+    #rootDir = 'var/www/FlaskHello/FlaskHello/'
+    rootDir = '.'
     nTop = 10
-    relevantCheckins = checkinsDF[checkinsDF.clusterId == clusterId]
-
-    (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds) = getSequencesFromCheckins(relevantCheckins)
-
+    start = time.clock()
+    (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds) = dataPreprocessing.getSavedSequences(clusterId, rootDir + '/' + 'julyLDA')
+    print 'Sequences: ', (time.clock() - start)
     matrix = getMatrixForTopSuccessors(categoryName, categoryPairsGroupedByUser, nTop, 0)
+    print 'Matrix: ', (time.clock() - start)
     categoriesArray = getTopSuccessorsColorsDict(categoryName, categoryPairsGroupedByUser, nTop)
+    print 'Categories: ', (time.clock() - start)
     filteredVenuePairs = filterCheckinsWithCategories(venuePairsGroupedByUser, categoriesArray)
+    print 'Filtering: ', (time.clock() - start)
     return {'matrix':matrix,
            'categories':categoriesArray,
            'checkins':filteredVenuePairs}
-#print getDataFor(1, 'Park')['checkins']
+#print getDataFor(1, '4bf58dd8d48988d163941735')['checkins']

@@ -35,3 +35,7 @@ opacity: 1;
   vector-effect: non-scaling-stroke;
   stroke-width: 1.5px;
 }
+
+.heatmap .axis path{display: none;}
+.heatmap .axis line{fill: none;stroke: #000;shape-rendering: crispEdges;}
+.heatmap .axis text{font-size: 12px}

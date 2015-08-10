@@ -36,14 +36,12 @@ body {
     position: absolute;
     height: 50%;
     width:30%;
-    background:#ddf;
 }
-#bins-block {
+#heatmap-block {
     position: absolute;
     height: 50%;
     width:30%;
     top: 50%;
-    background:#bfb;
 }
 #map-block {
     position: absolute;
@@ -51,5 +49,4 @@ body {
     width:40%;
     left:60%;
     height:100%;
-    background:#dfd;
 }
