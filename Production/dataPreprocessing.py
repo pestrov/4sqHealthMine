@@ -26,6 +26,7 @@ def generateDataForDataFrame(checkinsDF, folder):
         saveVisitedVenuesNames(visitedVenueIds, clusterId, clustersFldr(folder), maps['venueNames'])
         saveVenuePairs(venuePairsGroupedByUser, clusterId, clustersFldr(folder))
         saveCategoryPairs(categoryPairsGroupedByUser, clusterId, clustersFldr(folder))
+        saveCheckinsHeatmap(relevantCheckins, clusterId, clustersFldr(folder))
 
         print 'Building cluster: ', clusterId, (time.clock() - start)
         start = current = time.clock()
@@ -107,6 +108,14 @@ def getSequencesFromCheckins(checkinsDF, maps):
     return (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds, visitedVenueIds)
 
 #Work with files
+def saveCheckinsHeatmap(relevantCheckins, clusterId, clusterFolder):
+    checkinsCountGrouped = []
+    for group in relevantCheckins.groupby(['hour','weekday']):
+        checkinsCountGrouped.append({'key':group[0],
+                                    'value':len(group[1])})
+    with open(clusterFolder + '/checkinsHeat' + str(clusterId) + '.json', 'w') as outfile:
+        json.dump(checkinsCountGrouped, outfile)
+
 def saveVenuePairs(venuePairsGroupedByUser, clusterId, clusterFolder):
     with open(clusterFolder + '/venuePairs' + str(clusterId) + '.json', 'w') as outfile:
         json.dump(venuePairsGroupedByUser, outfile)
@@ -153,4 +162,4 @@ def pairwise(iterable):
     a, b = tee(iterable)
     next(b, None)
     return izip(a, b)
-#getDataForSavedDF()
+# getDataForSavedDF()

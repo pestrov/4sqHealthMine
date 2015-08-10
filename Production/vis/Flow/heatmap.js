@@ -29,9 +29,7 @@ function addHeatmap(data,heatmapSvg, heatmap) {
     monthDayFormat = d3.time.format('%m.%d');
 
   //data vars for rendering
-  var dateExtent = null,
-    dayOffset = 0,
-    colorCalibration = ['#f6faaa','#FEE08B','#FDAE61','#F46D43','#D53E4F','#9E0142']
+  var colorCalibration = ['#f6faaa','#FEE08B','#FDAE61','#F46D43','#D53E4F','#9E0142']
 
   //axises and scales
   var weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -59,16 +57,9 @@ function addHeatmap(data,heatmapSvg, heatmap) {
 
    rect = null;
    maxCount = 0;
-    data = data.data;
-    data.forEach(function(valueObj){
-      valueObj['date'] = timeFormat.parse(valueObj['timestamp']);
-      var day = valueObj['day'] = monthDayFormat(valueObj['date']);
-
-      var count = valueObj['value']['PM2.5'];
+    data.forEach(function(d){
+      var count = d.value;
       maxCount = d3.max([count, maxCount]);
-    });
-    dateExtent = d3.extent(data,function(d){
-      return d.date;
     });
 
     //render axises
@@ -89,35 +80,34 @@ function addHeatmap(data,heatmapSvg, heatmap) {
       .attr('transform','translate(-10,'+axisHeight+') rotate(-90)');
 
     //render heatmap rects
-    dayOffset = dayFormat(dateExtent[0]);
     rect = heatmap.selectAll('rect')
       .data(data)
     .enter().append('rect')
       .attr('width',cellSize)
       .attr('height',cellSize)
       .attr('x',function(d){
-        return itemSize*(dayFormat(d.date)-dayOffset);
+        return itemSize*d.key[1];
       })
       .attr('y',function(d){
-        return hourFormat(d.date)*itemSize;
+        return d.key[0]*itemSize;
       })
       .attr('fill','#ffffff');
 
-    rect.filter(function(d){ return d.value['PM2.5']>0;})
+    rect.filter(function(d){ return d.value>0;})
       .append('title')
       .text(function(d){
-        return monthDayFormat(d.date)+' '+d.value['PM2.5'];
+        return weekdays[d.key[1]] + ' ' + d.key[0] + '.00:' + ' ' + d.value;
       });
 
     renderColor();
     function renderColor(){
       rect
         .filter(function(d){
-          return (d.value['PM2.5']>=0);
+          return (d.value>=0);
         })
         .transition()
         .delay(function(d){
-          return (dayFormat(d.date)-dayOffset)*15;
+          return d.key[1]*15;
         })
         .duration(500)
         .attrTween('fill',function(d,i,a){
@@ -126,7 +116,7 @@ function addHeatmap(data,heatmapSvg, heatmap) {
             .range([0,1,2,3,4,5])
             .domain(([0, maxCount]));
 
-          return d3.interpolate(a,colorCalibration[colorIndex(d.value['PM2.5'])]);
+          return d3.interpolate(a,colorCalibration[colorIndex(d.value)]);
         });
     }
 

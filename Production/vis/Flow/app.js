@@ -18,7 +18,7 @@
       addChord(transitionData, chordSvg)
   });
 
-  d3.json("http://128.199.62.25/static/Habidatum/Flow/testTime.json", function (error, timeSeriesData) {
+  d3.json("http://128.199.62.25/static/Habidatum/checkinsHeat/checkinsHeat".concat(initialQuery.clusterId).concat(".json"), function (error, timeSeriesData) {
     addHeatmap(timeSeriesData, heatmapComps[0], heatmapComps[1]);
   });
 
