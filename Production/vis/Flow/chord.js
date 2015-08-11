@@ -47,12 +47,15 @@ function addChord(transitionData, chordSvg) {
   categoryNames = transitionData['categoryNames'];
   categoriesColors = getCategoriesDict(categories);
   checkins = transitionData['checkins'];
+
   chordLayout.matrix(matrix);
 
+  chordSvg.selectAll(".group").remove();
   // Add a group per neighborhood.
   var group = chordSvg.selectAll(".group")
       .data(chordLayout.groups)
-      .enter().append("g")
+      .enter()
+      .append("g")
       .attr("class", "group")
       .on("mouseover", mouseover);
 
@@ -81,10 +84,12 @@ function addChord(transitionData, chordSvg) {
   groupText.filter(function(d, i) { return groupPath[0][i].getTotalLength() / 2 - 16 < this.getComputedTextLength(); })
       .remove();
 
+  chordSvg.selectAll(".chord").remove()
+
   // Add the chords.
-  var chord = chordSvg.selectAll(".chord")
-      .data(chordLayout.chords)
-    .enter().append("path")
+  var chord = chordSvg.selectAll(".chord").data(chordLayout.chords)
+      .enter()
+      .append("path")
       .attr("class", "chord")
       .style("fill", function(d) { return categories[d.source.index].color; })
       .attr("d", chordPath)

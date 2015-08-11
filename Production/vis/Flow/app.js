@@ -30,15 +30,14 @@ function updateData() {
 
   var selectedCategory = categorySelector.options[categorySelector.selectedIndex].value;
   var selectedClusterId = clusterSelector.options[clusterSelector.selectedIndex].value;
-  console.log(queryForParams(selectedClusterId, selectedCategory));
-  // d3.json(queryForParams(selectedClusterId, selectedCategory) , function(error, transitionData) {
-  //     console.log(error);
-  //     console.log('Hi');
-  //     addChord(transitionData, chordSvg)
-  // });
+  d3.json(queryForParams(selectedClusterId, selectedCategory) , function(error, transitionData) {
+      if (error) {
+        console.log(error);
+      }
+      addChord(transitionData, chordSvg)
+  });
 
   d3.json("http://128.199.62.25/static/Habidatum/checkinsHeat/checkinsHeat".concat(selectedClusterId).concat(".json"), function (error, timeSeriesData) {
-    console.log('Add heatmap');
     updateMap(timeSeriesData, heatmap);
   });
 

@@ -64,26 +64,26 @@ function transformLatLng(d) {
 
 addLines = function (linesData, targetCategoryName, index) {
 //Moscow only
-  moscowData = linesData.filter(function (d) {
-     return pathInRect(d, regionRect)
-   });
+  // linesData = linesData.filter(function (d) {
+  //    return pathInRect(d, regionRect)
+  //  });
 
 //Category pairs only checkins
    if (targetCategoryName.length) {
-     moscowData = moscowData.filter(function (d) {
+     linesData = linesData.filter(function (d) {
         return d[0]['cat'][1] == targetCategoryName;
       });
    }
 
    if (recentOnly) {
-     moscowData = moscowData.filter(function (d) {
+     linesData = linesData.filter(function (d) {
         return d[1] <= 360;
       });
    }
 
   var idFunction = function(point, index) {
     return point[0]['id'][0].concat(point[0]['id'][1]).concat(index); }
-  var lines = linesGroup.selectAll("line").data(moscowData, idFunction);
+  var lines = linesGroup.selectAll("line").data(linesData, idFunction);
 
     lines
     .enter()
@@ -100,7 +100,7 @@ addLines = function (linesData, targetCategoryName, index) {
 
   var sourceVenueIdFunction = function(point) { return point[0]['id'][0]; }
   var destVenueIdFunction = function(point) { return point[0]['id'][1]; }
-  var sourceVenues = linesGroup.selectAll(".sourceVenue").data(moscowData, sourceVenueIdFunction);
+  var sourceVenues = linesGroup.selectAll(".sourceVenue").data(linesData, sourceVenueIdFunction);
 
   sourceVenuesColor = categories[index].color;
 
@@ -121,7 +121,7 @@ addLines = function (linesData, targetCategoryName, index) {
 
   sourceVenues.append("title").text(function(d, i) { return d[0]["name"][0];});
 
-  var destVenues = linesGroup.selectAll(".destVenue").data(moscowData, destVenueIdFunction);
+  var destVenues = linesGroup.selectAll(".destVenue").data(linesData, destVenueIdFunction);
 
   fadeElements(destVenues);
   //Add venues
