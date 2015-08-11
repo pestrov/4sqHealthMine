@@ -1,5 +1,5 @@
 body {
-    width:1440px;
+    width:screen.width;
     margin:0;
     padding:0;
 }
