@@ -2,28 +2,54 @@
   var chordBox = d3.select("#chord-block").node().getBoundingClientRect();
   var mapBox = d3.select("#map-block").node().getBoundingClientRect();
   var heatmapBox = d3.select("#heatmap-block").node().getBoundingClientRect();
+  var controlDiv = d3.select("#controls-block");
 
   chordSvg = initChord(chordBox.width, chordBox.height)
   addMap(mapBox.width, mapBox.height);
-  heatmapComps = initHeatmap(heatmapBox.width, heatmapBox.height);
+  heatmap = initHeatmap(heatmapBox.width, heatmapBox.height);
 
   var initialQuery = getQueryParams(document.location.search);
   recentOnly = initialQuery.recentOnly;
-  var serverPath = "http://128.199.62.25/getTransitionData"
-  var newQuery = serverPath.concat("?clusterId=").concat(initialQuery.clusterId)
-                  .concat("&category=").concat(initialQuery.category)
-                  .concat("&debug=").concat(initialQuery.debug);
-  d3.json(newQuery , function(error, transitionData) {
+  var defaultClusterId = 1;
+  addControls(controlDiv)
+
+  d3.json(queryForParams(defaultClusterId, "4bf58dd8d48988d163941735") , function(error, transitionData) {
       console.log(error);
       addChord(transitionData, chordSvg)
   });
 
-  d3.json("http://128.199.62.25/static/Habidatum/checkinsHeat/checkinsHeat".concat(initialQuery.clusterId).concat(".json"), function (error, timeSeriesData) {
-    addHeatmap(timeSeriesData, heatmapComps[0], heatmapComps[1]);
+  d3.json("http://128.199.62.25/static/Habidatum/checkinsHeat/checkinsHeat".concat(defaultClusterId).concat(".json"), function (error, timeSeriesData) {
+    addHeatmap(timeSeriesData, heatmap);
   });
 
 })();
 
+function updateData() {
+  var categorySelector = document.getElementById("categorySelector");
+  var clusterSelector = document.getElementById("clusterSelector");
+
+  var selectedCategory = categorySelector.options[categorySelector.selectedIndex].value;
+  var selectedClusterId = clusterSelector.options[clusterSelector.selectedIndex].value;
+  console.log(queryForParams(selectedClusterId, selectedCategory));
+  // d3.json(queryForParams(selectedClusterId, selectedCategory) , function(error, transitionData) {
+  //     console.log(error);
+  //     console.log('Hi');
+  //     addChord(transitionData, chordSvg)
+  // });
+
+  d3.json("http://128.199.62.25/static/Habidatum/checkinsHeat/checkinsHeat".concat(selectedClusterId).concat(".json"), function (error, timeSeriesData) {
+    console.log('Add heatmap');
+    updateMap(timeSeriesData, heatmap);
+  });
+
+}
+function queryForParams(clusterId, categoryId) {
+  var serverPath = "http://128.199.62.25/getTransitionData"
+  var newQuery = serverPath.concat("?clusterId=").concat(clusterId)
+                  .concat("&category=").concat(categoryId)
+                  .concat("&debug=").concat(0);
+  return newQuery;
+}
 
 function getQueryParams(qs) {
     qs = qs.split('+').join(' ');

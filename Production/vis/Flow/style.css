@@ -35,6 +35,31 @@ opacity: 1;
   vector-effect: non-scaling-stroke;
   stroke-width: 1.5px;
 }
+#clusterSelector {
+  margin-top:40px;
+  margin-left:40px;
+  width: 100px;
+}
+
+#categorySelector {
+  margin-top:40px;
+  margin-left:160px;
+  width: 100px;
+}
+
+#clusterSelectionLabel {
+  margin-top:10px;
+  margin-left:20px;
+  width: 100px;
+  height: 20px;
+}
+
+#categorySelectionLabel {
+  margin-top:10px;
+  margin-left:160px;
+  width: 100px;
+  height: 20px;
+}
 
 .heatmap .axis path{display: none;}
 .heatmap .axis line{fill: none;stroke: #000;shape-rendering: crispEdges;}
