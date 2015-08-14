@@ -5,8 +5,6 @@
   var controlDiv = d3.select("#controls-block");
 
   infoDiv = d3.select("#info-block");
-  infoDiv.append('div').text('Top Venues/Categories:');
-  infoDiv.append('p').text('');
 
   chordSvg = initChord(chordBox.width, chordBox.height)
   addMap(mapBox.width, mapBox.height);
@@ -23,20 +21,21 @@
       addChord(transitionData, chordSvg)
   });
 
-  d3.json("http://128.199.62.25/static/Habidatum/checkinsHeat/checkinsHeat".concat(defaultClusterId).concat(".json"), function (error, timeSeriesData) {
+  d3.json("http://urbandataflow.com/4sq/checkinsHeat/checkinsHeat".concat(defaultClusterId).concat(".json"), function (error, timeSeriesData) {
     addHeatmap(timeSeriesData, heatmap);
   });
 
-  d3.json("http://128.199.62.25/static/Habidatum/Flow/clustersTopVenues.json", function (error, topVenuesData) {
+  d3.json("http://urbandataflow.com/4sq/app/data/clustersTopVenues.json", function (error, topVenuesData) {
     topVenues = topVenuesData;
     updateInfo(infoDiv, currentClusterId);
   })
 
-  d3.json("http://128.199.62.25/static/Habidatum/Flow/clustersTopCategories.json", function (error, topCategoriesData) {
+  d3.json("http://urbandataflow.com/4sq/app/data/clustersTopCategories.json", function (error, topCategoriesData) {
     topCategories = topCategoriesData;
     updateInfo(infoDiv, currentClusterId);
   })
 
+  setupInfoTabs();
 })();
 
 function updateData() {
@@ -53,14 +52,14 @@ function updateData() {
       addChord(transitionData, chordSvg)
   });
 
-  d3.json("http://128.199.62.25/static/Habidatum/checkinsHeat/checkinsHeat".concat(selectedClusterId).concat(".json"), function (error, timeSeriesData) {
+  d3.json("http://urbandataflow.com/4sq/checkinsHeat/checkinsHeat".concat(selectedClusterId).concat(".json"), function (error, timeSeriesData) {
     updateMap(timeSeriesData, heatmap);
   });
   updateInfo(infoDiv, currentClusterId);
 }
 
 function queryForParams(clusterId, categoryId) {
-  var serverPath = "http://128.199.62.25/getTransitionData"
+  var serverPath = "http://urbandataflow.com/getTransitionData"
   var newQuery = serverPath.concat("?clusterId=").concat(clusterId)
                   .concat("&category=").concat(categoryId)
                   .concat("&debug=").concat(0);

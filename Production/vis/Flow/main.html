@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
   <title> Checkins flow in Moscow </title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="stylesheet" href="cellsStyle.css"/>
+  <link rel="stylesheet" href="styles/elementsStyle.css"/>
+  <link rel="stylesheet" href="styles/cellsStyle.css"/>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="http://d3js.org/topojson.v1.min.js"></script>
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
@@ -13,10 +14,16 @@
         <div id="left-column">
           <div id="controls-block">
           <label id="clusterSelectionLabel">Cluster ID</label>
-          <label id="categoySelectionLabel">Category</label>
-          <button type="button" class = "updateDataButton" onclick="updateData()">Update</button>
+          <label id="categorySelectionLabel">Category</label>
+          <select id="categorySelector"></select>
+          <select id="clusterSelector"></select>
+          <button type="button" class = "updateDataButton" onclick="updateData(event)" style="clear:both; float:left; margin-left:20px; margin-top:20px;">Update</button>
           </div>
           <div id="info-block">
+            <ul class="nav nav-tabs" style="margin: 0 auto; width:300px; border:0px">
+                <li  id="venuesTab" role="presentation"><a href="#">LDA Venues</a></li>
+                <li id="categoriesTab" role="presentation"><a href="#">Most Visited Categories</a></li>
+            </ul>
           </div>
         </div>
         <div id="right-container">
@@ -31,10 +38,10 @@
         </div>
     </div>
     </div>
-    <script type="text/javascript" src="chord.js"></script>
-    <script type="text/javascript" src="map.js"></script>
-    <script type="text/javascript" src="heatmap.js"></script>
-    <script type="text/javascript" src="controlPane.js"></script>
-    <script type="text/javascript" src="info.js"></script>
-    <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" src="js/chord.js"></script>
+    <script type="text/javascript" src="js/map.js"></script>
+    <script type="text/javascript" src="js/heatmap.js"></script>
+    <script type="text/javascript" src="js/controlPane.js"></script>
+    <script type="text/javascript" src="js/info.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
 </html>

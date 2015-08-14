@@ -1,6 +1,6 @@
 from flask import Flask, redirect, request, Response
 import useful
-from getTransitionDataDict import getTransitionDataDict
+from dataScripts import getTransitionDataDict
 import logging
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -8,7 +8,7 @@ logging.basicConfig(filename='error.log',level=logging.DEBUG)
 
 @app.route("/")
 def hello():
-    return redirect('/static/app/index.html')
+    return redirect('/4sq/app/index.html')
 
 @app.errorhandler(500)
 def internal_error(exception):
@@ -78,7 +78,7 @@ def getTransitionData():
         except:
             ret = 'parameter debug should be int type'
     if args:
-        ret = getTransitionDataDict(**args)
+        ret = getTransitionDataDict.getTransitionDataDict(**args)
     else:
         ret = 'no parameters given'
 
@@ -86,22 +86,6 @@ def getTransitionData():
                     status=200,
                     mimetype="application/json")
     return resp
-
-@app.route('/hook/parse-instagram',methods=['GET', 'POST'])
-def parse_instagram():
-    mode         = request.values.get('hub.mode')
-    challenge    = request.values.get('hub.challenge')
-    verify_token = request.values.get('hub.verify_token')
-
-    if challenge:
-      return Response(challenge)
-    print request.values
-    print request.values.to_dict()
-    print dict(request.values)
-    print request.method
-    print request.form.keys()
-    return Response(request.form)
-
 
 if __name__ == "__main__":
     app.run()

@@ -36,27 +36,32 @@ opacity: 1;
   stroke-width: 1.5px;
 }
 #clusterSelector {
-  margin-top:40px;
-  margin-left:40px;
+  margin-top:20px;
+  margin-left:20px;
   width: 100px;
+  float:left;
 }
 
 #categorySelector {
-  margin-top:40px;
-  margin-left:160px;
+  clear:both;
+  margin-top:20px;
+  margin-left:20px;
   width: 100px;
+  float:left;
 }
 
 #clusterSelectionLabel {
   margin-top:10px;
   margin-left:20px;
+  float: left;
   width: 100px;
   height: 20px;
 }
 
 #categorySelectionLabel {
   margin-top:10px;
-  margin-left:160px;
+  margin-left:20px;
+  float:left;
   width: 100px;
   height: 20px;
 }

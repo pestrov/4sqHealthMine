@@ -9,20 +9,17 @@ body {
 #left-column {
     float:left;
     width:30%;
-    background:#bfb;
 }
 #controls-block {
     position: absolute;
     height: 50%;
     width:30%;
-    background:#C0C0C0;
 }
 #info-block {
     position: absolute;
     height: 50%;
     width:30%;
     top: 50%;
-    background:#B0B0B0;
 }
 #right-container {
     float:right;
@@ -42,7 +39,6 @@ body {
     height: 50%;
     width:30%;
     top: 50%;
-    background: #E0E0E0;
 }
 #map-block {
     position: absolute;

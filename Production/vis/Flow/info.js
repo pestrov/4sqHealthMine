@@ -1,5 +1,21 @@
 function updateInfo(infoDiv, clusterId) {
-  console.log(clusterId);
+  switchToTopVenues(infoDiv, clusterId);
+}
+
+function setupInfoTabs() {
+  document.getElementById("venuesTab").addEventListener('click', function (e) {
+    switchToTopVenues(infoDiv, currentClusterId);
+ });
+ document.getElementById("categoriesTab").addEventListener('click', function (e) {
+   switchToTopCategories(infoDiv, currentClusterId);
+});
+}
+
+function switchToTopVenues(infoDiv, clusterId) {
+
+  infoDiv.selectAll('.category')
+  .remove();
+
   if (topVenues) {
     infoDiv.selectAll('.venue').remove();
 
@@ -10,24 +26,31 @@ function updateInfo(infoDiv, clusterId) {
     var enterDiv = venues.enter()
         .append("div")
         .attr("class", "venue")
+        .style('margin-left', "5px");
 
     enterDiv.append("div")
         .text(function(d) { return d });
-    infoDiv.append('p').text('');
     }
+}
 
-    if (topCategories) {
-      infoDiv.selectAll('.category').remove();
+function switchToTopCategories(infoDiv, clusterId) {
 
-      var venues = infoDiv
-          .selectAll('.category')
-          .data(topCategories[clusterId-1]);
+  infoDiv.selectAll('.venue')
+  .remove();
 
-      var enterDiv = venues.enter()
-          .append("div")
-          .attr("class", "category")
+  if (topCategories) {
+    infoDiv.selectAll('.category').remove();
 
-      enterDiv.append("div")
-          .text(function(d) { return d });
-      }
+    var venues = infoDiv
+        .selectAll('.category')
+        .data(topCategories[clusterId-1]);
+
+    var enterDiv = venues.enter()
+        .append("div")
+        .attr("class", "category")
+        .style('margin-left', "5px");
+
+    enterDiv.append("div")
+        .text(function(d) { return d });
+    }
 }

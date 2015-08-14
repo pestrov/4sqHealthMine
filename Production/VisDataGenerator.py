@@ -110,7 +110,7 @@ def filterCheckinsWithCategories(venuePairsGroupedByUser, categoriesArray):
 
 def getDataFor(clusterId, categoryName):
     global rootDir
-    rootDir = '/var/www/FlaskHello/FlaskHello'
+    rootDir = '/var/www/FlaskHello/FlaskHello/dataScripts'
     #rootDir = '.'
     nTop = 10
 

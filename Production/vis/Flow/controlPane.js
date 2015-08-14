@@ -1,9 +1,8 @@
 function addControls(controlDiv) {
 
-  d3.json("http://128.199.62.25/static/Habidatum/Flow/categoryNamesArray.json", function (error, categoryNames) {
+  d3.json("http://urbandataflow.com/4sq/app/data/categoryNamesArray.json", function (error, categoryNames) {
 
-    controlDiv.append("select")
-    .attr('id', 'categorySelector')
+    controlDiv.select("#categorySelector")
     .selectAll('option')
     .data(categoryNames)
     .enter()
@@ -14,10 +13,9 @@ function addControls(controlDiv) {
 
   });
 
-  d3.json("http://128.199.62.25/static/Habidatum/Flow/clusterIds.json", function (error, clusterIds) {
+  d3.json("http://urbandataflow.com/4sq/app/data/clusterIds.json", function (error, clusterIds) {
 
-    controlDiv.append("select")
-    .attr('id', 'clusterSelector')
+    controlDiv.select("#clusterSelector")
     .selectAll('option')
     .data(clusterIds)
     .enter()
