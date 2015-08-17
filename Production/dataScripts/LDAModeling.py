@@ -132,10 +132,10 @@ def runLDA(projectName, fileName, minUsersPerVenueForLDA = 10, topicsNumber = 20
     LDAclusteredUsersDF.to_csv(folderRelativePath + 'LDAClusteredCheckins.tsv', sep="\t", encoding="utf-8")
 
     venueByCluster = [0 for i in range(topicsNumber)]
-    for clusterCheckins in LDAclusteredUsersDF.groupby('clusterId'):
-        names =  list(np.unique(clusterCheckins[1]['name'].tolist()))
-        ids = list(np.unique(clusterCheckins[1]['venueId'].tolist()))
-        venueByCluster[clusterCheckins[0] - 1] = {"names": names,
+    for clusterId, clusterTopVenues in enumerate(LDATopVenues):
+        names =  [venueNameFromId(allCheckins, venueId) for venueId in clusterTopVenues]
+        ids = clusterTopVenues
+        venueByCluster[clusterId] = {"names": names,
                                              "ids":ids}
 
     with open(folderRelativePath +'clustersTopVenues.json', 'w') as outfile:

@@ -23,10 +23,10 @@ def generateDataForDataFrame(checkinsDF, folder):
     for clusterId in clusterIds:
         relevantCheckins = checkinsDF[checkinsDF.clusterId == clusterId]
         (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds, visitedVenueIds) = getSequencesFromCheckins(relevantCheckins, maps)
-        saveVisitedVenuesNames(visitedVenueIds, clusterId, clustersFldr(folder), maps['venueNames'])
+        saveVisitedVenuesNames(visitedVenueIds, clusterId, visitedVenuesFldr(folder), maps['venueNames'])
         saveVenuePairs(venuePairsGroupedByUser, clusterId, clustersFldr(folder))
         saveCategoryPairs(categoryPairsGroupedByUser, clusterId, clustersFldr(folder))
-        saveCheckinsHeatmap(relevantCheckins, clusterId, clustersFldr(folder))
+        saveCheckinsHeatmap(relevantCheckins, clusterId, checkinsHeatFldr(folder))
 
         print 'Building cluster: ', clusterId, (time.clock() - start)
         start = current = time.clock()
@@ -52,14 +52,14 @@ def buildMaps(checkinsDF, folder):
     return maps
 
 #Building indexes
-def getCheckinsDataFrame(rootDir):
-    return pd.read_csv(rootDir+'/data/LDAClusteredUsersMoreThan10.tsv', sep="\t", encoding="utf-8")
+def getCheckinsDataFrame(projectDir, filename):
+    return pd.read_csv(projectDir + "/" + filename, sep="\t", encoding="utf-8")
 
-def getDataForSavedDF():
-    rootDir = '/var/www/FlaskHello/FlaskHello'
-    #rootDir = '.'
-    checkinsDF = getCheckinsDataFrame(rootDir)
-    generateDataForDataFrame(checkinsDF, rootDir + '/' + 'julyLDA')
+def getDataForSavedDF(fileName, projectName):
+    #projectDir = '/var/www/FlaskHello/FlaskHello/dataScripts/data/' + projectName
+    projectDir = 'data/' + projectName
+    checkinsDF = getCheckinsDataFrame(projectDir, fileName)
+    generateDataForDataFrame(checkinsDF, projectDir)
 
 def getCategoryForVenueDict(checkinsDF):
     return checkinsDF[['venueId', 'categoryId']].set_index('venueId').to_dict()['categoryId']
@@ -137,7 +137,7 @@ def readCategoryPairs(clusterId, clusterFolder):
         return json.load(infile)
 
 def readVisitedVenuesNames(clusterId, projectFolder):
-    with open(clustersFldr(projectFolder) + '/visitedVenues' + str(clusterId) + '.json', 'r') as infile:
+    with open(visitedVenuesFldr(projectFolder) + '/visitedVenues' + str(clusterId) + '.json', 'r') as infile:
         return json.load(infile)
 
 def readCategoriesNames(folder):
@@ -151,15 +151,24 @@ def getSavedSequences(clusterId, projectFolder):
 
 def clustersFldr(folder):
     return folder + "/clusterSequences"
+def checkinsHeatFldr(folder):
+    return folder + "/checkinsHeat"
+def visitedVenuesFldr(folder):
+    return folder + "/visitedVenues"
 
 def createFoldersStructure(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
     if not os.path.exists(clustersFldr(folder)):
         os.makedirs(clustersFldr(folder))
+    if not os.path.exists(checkinsHeatFldr(folder)):
+        os.makedirs(checkinsHeatFldr(folder))
+    if not os.path.exists(visitedVenuesFldr(folder)):
+        os.makedirs(visitedVenuesFldr(folder))
 
 def pairwise(iterable):
     a, b = tee(iterable)
     next(b, None)
     return izip(a, b)
 # getDataForSavedDF()
+#getDataForSavedDF('LDAClusteredCheckins.tsv', 'test')

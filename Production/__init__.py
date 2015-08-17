@@ -18,24 +18,18 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-@app.route("/upload", methods=['GET', 'POST'])
+@app.route("/upload", methods=['POST'])
 def upload():
     if request.method == 'POST':
-        file = request.files['file']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('upload'))
-    return """
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form action="" method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
-    <p>%s</p>
-    """ % "<br>".join(os.listdir(app.config['UPLOAD_FOLDER'],))
+        file = request.files['checkins']
+        projectName = request.form['projectName']
+        if projectName and projectName not in os.listdir(app.config['UPLOAD_FOLDER']:
+            projectName = secure_filename(projectName)
+            os.makedirs(app.config['UPLOAD_FOLDER'] + '/' + projectName, 777)
+            if file:
+                filename = 'source.tsv'
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'] + '/' + projectName, filename))
+                #return redirect(url_for('upload'))
 
 @app.route("/")
 def hello():
@@ -106,6 +100,12 @@ def getTransitionData():
         try:
             debug = int(request.args['debug'])
             args['debug'] = debug
+        except:
+            ret = 'parameter debug should be int type'
+    if 'projectName' in request.args:
+        try:
+            debug = int(request.args['projectName'])
+            args['projectName'] = debug
         except:
             ret = 'parameter debug should be int type'
     if args:

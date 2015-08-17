@@ -108,17 +108,17 @@ def filterCheckinsWithCategories(venuePairsGroupedByUser, categoriesArray):
     return filteredVenuePairs
 
 
-def getDataFor(clusterId, categoryName):
+def getDataFor(clusterId, categoryName, projectName):
     global rootDir
-    rootDir = '/var/www/FlaskHello/FlaskHello/dataScripts'
-    #rootDir = '.'
+    #rootDir = '/var/www/FlaskHello/FlaskHello/dataScripts/data/'
+    rootDir = 'data/'
     nTop = 10
 
-    visitedVenuesNames = dataPreprocessing.readVisitedVenuesNames(clusterId, rootDir + '/' + 'julyLDA')
+    visitedVenuesNames = dataPreprocessing.readVisitedVenuesNames(clusterId, rootDir + projectName)
     #TODO: just read it from the server
-    categoryNames = dataPreprocessing.readCategoriesNames(rootDir + '/' + 'julyLDA')
+    categoryNames = dataPreprocessing.readCategoriesNames(rootDir + '/' + projectName)
 
-    (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds) = dataPreprocessing.getSavedSequences(clusterId, rootDir + '/' + 'julyLDA')
+    (venuePairsGroupedByUser, categoryPairsGroupedByUser, userIds) = dataPreprocessing.getSavedSequences(clusterId, rootDir + projectName)
 
     matrix = getMatrixForTopSuccessors(categoryName, categoryPairsGroupedByUser, nTop, 0)
     categoriesArray = getTopSuccessorsColorsDict(categoryName, categoryPairsGroupedByUser, nTop)
@@ -129,5 +129,4 @@ def getDataFor(clusterId, categoryName):
            'checkins':filteredVenuePairs,
            'categoryNames':categoryNames}
 
-# with open('testChecks.json', 'w') as outfile:
-#     json.dump(getDataFor(1, '4bf58dd8d48988d163941735')['checkins'], outfile)
+#print getDataFor(1, '4bf58dd8d48988d163941735', 'test')['checkins']

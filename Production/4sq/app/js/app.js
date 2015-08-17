@@ -11,7 +11,8 @@
   heatmap = initHeatmap(heatmapBox.width, heatmapBox.height);
 
   var initialQuery = getQueryParams(document.location.search);
-  recentOnly = initialQuery.recentOnly;
+  recentOnly = 1;
+  projectName = initialQuery.projectName;
   var defaultClusterId = 1;
   addControls(controlDiv)
   currentClusterId = defaultClusterId;
@@ -62,6 +63,7 @@ function queryForParams(clusterId, categoryId) {
   var serverPath = "http://urbandataflow.com/getTransitionData"
   var newQuery = serverPath.concat("?clusterId=").concat(clusterId)
                   .concat("&category=").concat(categoryId)
+                  .concat("&projectName=").concat(projectName)
                   .concat("&debug=").concat(0);
   return newQuery;
 }
