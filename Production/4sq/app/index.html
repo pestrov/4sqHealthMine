@@ -13,9 +13,14 @@
 
 				<div class="col-md-1"></div>
 				<div class="col-md-10">
-					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam nec purus commodo, bibendum est quis, egestas turpis. Phasellus dapibus purus non ligula aliquet gravida. Cras aliquam semper erat, placerat egestas magna consequat non. Nulla mattis semper sem sit amet volutpat. Nulla sem erat, rutrum in feugiat sed, porta sit amet leo. Fusce eleifend, lectus eget porttitor accumsan, metus metus faucibus quam, vitae ornare arcu turpis pulvinar mauris. Maecenas eros turpis, pulvinar quis lobortis feugiat, dictum et sapien. Nam finibus molestie iaculis. Suspendisse luctus elit metus.</p>
+					<p>In this project I was working with Fourqsquare checkins data. A checkin is a tuple of user, venue and timestamp, that a user leaves when he wants to show his presence at a certain place. We can use the histories of checkins of users that visit places of interest to better understand different patterns of behavior that exist in these places.</p>
 
-					<p>Vivamus molestie ipsum velit, eu semper orci mollis eu. Pellentesque placerat finibus arcu et ultricies. Morbi ac interdum lacus, eget fringilla tellus. Vestibulum faucibus vitae nisi ac accumsan. Sed mollis fringilla est ultrices sagittis. Vestibulum justo arcu, vulputate in tincidunt in, consequat id ex. Proin sed massa sit amet justo efficitur accumsan vitae et tellus. Proin finibus rutrum lacinia. Nullam luctus orci a pulvinar vestibulum.</p>
+					<p>The visualisation was focused on two aspects: general information about the cluster and transitions between categories of venues.
+
+The first aspect, the general information, shows you an overview of a selected cluster: most visited categories, LDA defining venues, heatmap of Weekday/hour activity. You can switch between the clusters and see how they differ.
+
+The second aspect is made available by two main components: chord diagram of transitions between categories and a map, where the transitions between particular venues of selected categories pairs are displayed. With this you can see, what are the top-10 categories where people from a certain cluster go after they go to the Gym, what those places are, how they are distributed across the city and even the whole world.
+</p>
 				</div>
 				<div class="col-md-1"></div>
 
@@ -39,6 +44,12 @@
 						<strong>Cluster your checkins.</strong>
 						<p></p>
 						<p>Use our LDA implementation to get split the checkins of your users into behavioral groups and explore their activity patterns. Upload a csv file of the following format:</p>
+						<form action="http://urbandataflow.com/upload" method=post enctype=multipart/form-data>
+					      	<p>Project Name:</p>
+									<input type="text" name="projectName">
+									<input type=file name="checkins">
+					        <input type=submit value=Upload>
+					  </form>
 					</div>
 					<div class="col-md-4" style="text-align: justify; padding: 0 30px">
 						<strong>Visualize your dataset.</strong>

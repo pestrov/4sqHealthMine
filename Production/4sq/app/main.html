@@ -11,28 +11,32 @@
 
     <div id="body">
     <div id="main">
-        <div id="left-column">
-          <div id="controls-block">
-          <label id="clusterSelectionLabel">Cluster ID</label>
-          <label id="categorySelectionLabel">Category</label>
-          <select id="categorySelector"></select>
-          <select id="clusterSelector"></select>
-          <button type="button" class = "updateDataButton" onclick="updateData(event)" style="clear:both; float:left; margin-left:20px; margin-top:20px;">Update</button>
-          </div>
-          <div id="info-block">
-            <ul class="nav nav-tabs" style="margin: 0 auto; width:300px; border:0px">
-                <li  id="venuesTab" role="presentation"><a href="#">LDA Venues</a></li>
-                <li id="categoriesTab" role="presentation"><a href="#">Most Visited Categories</a></li>
-            </ul>
-          </div>
-        </div>
-        <div id="right-container">
-            <div id="middle-column">
-              <div id="chord-block">
+        <div id="left-container">
+          <div id="top-row">
+              <div id="cluster-block">
+                  <label id="categorySelectionLabel">Category</label>
+                  <label id="clusterSelectionLabel">Cluster ID</label>
+                  <select id="categorySelector"></select>
+                  <select id="clusterSelector"></select>
+                  <button type="button" class = "updateDataButton" onclick="updateData(event)" style="clear:both; float:left; margin-left:20px; margin-top:20px;">Update</button>
               </div>
               <div id="heatmap-block">
               </div>
-            </div>
+          </div>
+
+          <div id="bottom-row">
+              <div id="info-block">
+                <ul class="nav nav-tabs" style="margin: 0 auto; width:300px; border:0px">
+                    <li  id="venuesTab" role="presentation"><a href="#">LDA Venues</a></li>
+                    <li id="categoriesTab" role="presentation"><a href="#">Most Visited Categories</a></li>
+                </ul>
+              </div>
+              <div id="chord-block">
+              </div>
+          </div>
+        </div>
+
+        <div id="right-container">
             <div id="map-block">
             </div>
         </div>

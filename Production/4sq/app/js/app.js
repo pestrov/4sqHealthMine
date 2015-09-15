@@ -2,7 +2,7 @@
   var chordBox = d3.select("#chord-block").node().getBoundingClientRect();
   var mapBox = d3.select("#map-block").node().getBoundingClientRect();
   var heatmapBox = d3.select("#heatmap-block").node().getBoundingClientRect();
-  var controlDiv = d3.select("#controls-block");
+  var controlDiv = d3.select("#cluster-block");
 
   infoDiv = d3.select("#info-block");
 

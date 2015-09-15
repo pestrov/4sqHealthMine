@@ -6,40 +6,51 @@ body {
 #body {
     margin:0 auto;
 }
-#left-column {
+#left-container {
     float:left;
-    width:30%;
-}
-#controls-block {
-    position: absolute;
-    height: 50%;
-    width:30%;
-}
-#info-block {
-    position: absolute;
-    height: 50%;
-    width:30%;
-    top: 50%;
+    width:60%;
 }
 #right-container {
     float:right;
-    width:70%;
+    width:40%;
 }
-#middle-column {
-    float:left;
+#top-row {
+  position: absolute;
+  height: 50%;
+  width:60%;
+}
+
+#bottom-row {
+  position: absolute;
+  height: 50%;
+  width:60%;
+  top: 50%;
+}
+
+#cluster-block {
+    position: absolute;
+    height: 50%;
+    width:40%;
+}
+
+#heatmap-block {
+    position: absolute;
+    width:30%;
+    height:100%;
+    left:70%;
+}
+
+#info-block {
+    position: absolute;
     width:50%;
 }
 #chord-block {
     position: absolute;
-    height: 50%;
-    width:30%;
+    height: 100%;
+    width:50%;
+    left:50%;
 }
-#heatmap-block {
-    position: absolute;
-    height: 50%;
-    width:30%;
-    top: 50%;
-}
+
 #map-block {
     position: absolute;
     float:right;
